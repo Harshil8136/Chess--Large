@@ -69,6 +69,7 @@ aside {
     }
 }
 
+
 .header-footer, #live-analysis-display { background-color: var(--bg-inset); }
 .captured-pieces-container, .move-history-container, #ar-analysis-move-list, .bg-inset { background-color: var(--bg-inset); }
 .themed-border { border-color: var(--border); }
@@ -183,7 +184,6 @@ div[data-square] {
 #log-box-content .log-error { color: #f87171; }
 #log-box-content .log-warn { color: #facc15; }
 #log-box-resize-handle {
-    /* Creates a visual gripper icon using gradients */
     background-image:
         linear-gradient(135deg, var(--border) 25%, transparent 25%),
         linear-gradient(225deg, var(--border) 25%, transparent 25%),
