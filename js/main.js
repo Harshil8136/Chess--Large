@@ -115,9 +115,10 @@ function initApp() {
     focusModeToggle.on('click', function() {
         $('body').toggleClass('focus-mode');
         localStorage.setItem('chessFocusMode', $('body').hasClass('focus-mode'));
-        // After the sidebar is hidden/shown, update the layout.
         setTimeout(() => {
-             $.fn.matchHeight._update();
+            if ($.fn.matchHeight) {
+                $.fn.matchHeight._update();
+            }
         }, 50);
     });
 
@@ -236,7 +237,6 @@ function initApp() {
                 throw workerError;
             }
             
-            // Load settings from localStorage
             const savedUiTheme = localStorage.getItem('chessUiTheme') || 'charcoal';
             uiThemeSelector.val(savedUiTheme);
             applyUiTheme(savedUiTheme);
@@ -259,10 +259,9 @@ function initApp() {
 
             initGame();
 
-            // Initial height sync after the board is ready
-            syncSidebarHeight();
-            $('.js-match-height').matchHeight();
-
+            if ($.fn.matchHeight) {
+                $('.js-match-height').matchHeight();
+            }
         })
         .catch((error) => {
             console.error('Failed to load Stockfish:', error);
@@ -278,16 +277,20 @@ function initApp() {
             });
         });
         
+    // UPDATED: Resize handler now also applies the analysis layout fix if needed.
     $(window).on('resize', () => { 
         clearTimeout(window.resizeTimer); 
         window.resizeTimer = setTimeout(() => { 
             if(board) { 
                 board.resize(); 
                 redrawUserShapes();
-                // Sync heights using both methods as requested
-                syncSidebarHeight();
+            }
+            if(isAnalysisMode) {
+                applyAnalysisLayout();
+            }
+            if ($.fn.matchHeight) {
                 $.fn.matchHeight._update();
-            } 
+            }
         }, 150); 
     });
 }
