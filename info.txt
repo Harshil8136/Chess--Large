@@ -1,5 +1,5 @@
- be sure that all code are well integrated with each other and dont conflict or have issue later
-
+be sure that all code are well integrated with each other and dont conflict or have issue later
+make sure existing code is there and you make updates in that code
 
 / (root directory)
 ├── index.html
