@@ -42,7 +42,9 @@ function initGame() {
     setTimeout(() => {
         if (board) board.resize();
         syncSidebarHeight();
-        $.fn.matchHeight._update();
+        if ($.fn.matchHeight) {
+            $.fn.matchHeight._update();
+        }
     }, 100);
 
     if (game.turn() === aiPlayer) {
@@ -78,7 +80,9 @@ function initGameFromFen(fen) {
     setTimeout(() => {
         if (board) board.resize();
         syncSidebarHeight();
-        $.fn.matchHeight._update();
+        if ($.fn.matchHeight) {
+            $.fn.matchHeight._update();
+        }
     }, 100);
 
     if (game.turn() === aiPlayer) {
