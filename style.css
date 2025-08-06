@@ -43,7 +43,6 @@ aside {
     }
 }
 
-/* Rule to ensure the board scales gracefully within its container */
 #board {
   max-height: 100%;
   max-width: 100%;
@@ -54,7 +53,7 @@ aside {
 @media (min-width: 1024px) {
     #board-area-container,
     #analysis-room > div:first-child {
-        flex: 1 1 auto; /* Allow the board area to grow and fill space */
+        flex: 1 1 auto; /* Allow the board area to grow and fill available space */
         min-width: 0;   /* Prevents flexbox overflow issues */
     }
 
@@ -95,7 +94,6 @@ aside {
     filter: invert(0.9);
 }
 
-/* This ensures squares can contain pseudo-elements for highlighting */
 div[data-square] {
     position: relative;
 }
@@ -119,7 +117,6 @@ div[data-square] {
 }
 .move-history-grid > span { text-align: center; }
 
-/* Styles for Focus Mode. Applied to the body tag via JS. */
 .focus-mode #main-game aside {
     display: none;
 }
@@ -129,13 +126,11 @@ div[data-square] {
     }
 }
 
-/* Styles for user-drawn highlights. Applied directly to the square div. */
 .highlight-user-green { background-color: rgba(21, 128, 61, 0.5) !important; }
 .highlight-user-red { background-color: rgba(185, 28, 28, 0.5) !important; }
 .highlight-user-yellow { background-color: rgba(217, 119, 6, 0.5) !important; }
 .highlight-user-blue { background-color: rgba(37, 99, 235, 0.5) !important; }
 
-/* Styles for click-to-move highlighting */
 .highlight-selected {
     background-color: rgba(45, 156, 219, 0.5) !important;
 }
@@ -152,7 +147,6 @@ div[data-square] {
     pointer-events: none;
 }
 
-/* Unchanged utility styles */
 #board, #analysis-board { box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 .captured-piece { width: 28px; height: 28px; margin: 2px; }
 .thinking-animation { animation:pulse 1.5s ease-in-out infinite; } @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
@@ -176,9 +170,8 @@ div[data-square] {
 .premove-highlight { background-color: rgba(255, 165, 0, 0.7) !important; }
 .hidden { display: none !important; }
 
-/* Styles for Debug Log */
 #log-box-container {
-    background-color: var(--bg-panel); /* Ensure solid background */
+    background-color: var(--bg-panel);
 }
 #log-box-content .log-message { border-bottom: 1px solid #44403c; padding: 2px 0; }
 #log-box-content .log-error { color: #f87171; }
