@@ -51,7 +51,6 @@ const openingExplorerContent = $('#opening-explorer-content');
 const focusModeToggle = $('#focus-mode-toggle');
 const analysisVisualizer = $('#analysis-visualizer');
 const visualizerCancelBtn = $('#visualizer-cancel-btn');
-// New refs for reorganized sidebar
 const gameSummarySection = $('#game-summary-section');
 const liveGameView = $('#live-game-view');
 const summaryAccuracy = $('#summary-accuracy');
@@ -62,23 +61,9 @@ let sounds = {};
 let isMuted = false;
 let playerName = 'Player';
 let highlightThreats = false;
+let analysisStockfish = null; 
 
 // --- Layout and UI Functions ---
-function syncSidebarHeight() {
-    const boardArea = document.getElementById('board-area-container');
-    const sidebars = document.querySelectorAll('#main-game aside, #analysis-room aside');
-    if (boardArea && sidebars.length) {
-        if (window.innerWidth >= 1024 && !$('body').hasClass('focus-mode')) {
-            requestAnimationFrame(() => {
-                const boardHeight = boardArea.offsetHeight;
-                sidebars.forEach(sidebar => { sidebar.style.height = `${boardHeight}px`; });
-            });
-        } else {
-            sidebars.forEach(sidebar => { sidebar.style.height = 'auto'; });
-        }
-    }
-}
-
 function showTab(tabId) {
     $('.tab-content').removeClass('active');
     $('.tab-button').removeClass('active');
@@ -103,37 +88,44 @@ function switchToMainGame() {
     isAnalysisMode = false;
     analysisRoomView.addClass('hidden');
     mainGameView.removeClass('hidden');
-    analysisVisualizer.addClass('hidden'); // Ensure visualizer is hidden
+    analysisVisualizer.addClass('hidden'); 
+    
     if (window.AnalysisController && typeof window.AnalysisController.stop === 'function') {
         window.AnalysisController.stop();
     }
+    
     if (window.loadFenOnReturn) {
         initGameFromFen(window.loadFenOnReturn);
         delete window.loadFenOnReturn;
-    } else {
-        runAnalysisBtn.prop('disabled', game.history().length === 0).text('Run Full Game Review');
     }
 }
 
-// NEW: Function to ensure the analysis board shows the correct position
-function initAnalysisBoard(fen) {
-    // This safely interacts with the AnalysisController's board instance, not the main game board
-    if (window.AnalysisController && window.AnalysisController.analysisBoard) {
-        if (!fen) fen = game.fen(); // Default to the current game's final position
-        window.AnalysisController.analysisBoard.position(fen);
-    }
+// NEW: Applies correct flexbox styles to the analysis room using JS for reliability
+function applyAnalysisLayout() {
+    // Only apply this layout on large screens
+    if (window.innerWidth < 1024) return;
+
+    $('#analysis-room').css({
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'stretch'
+    });
+    $('#analysis-room > div:first-child').css({ // Target the board's wrapper
+        flex: '1 1 auto'
+    });
+    $('#analysis-room > aside').css({
+        flex: '0 0 320px' // Corresponds to lg:w-80
+    });
 }
 
-// UPDATED: Now correctly sets up the analysis room view
 window.switchToAnalysisRoom = function() {
     isAnalysisMode = true;
     mainGameView.addClass('hidden');
     analysisVisualizer.addClass('hidden');
     analysisRoomView.removeClass('hidden');
     
-    // Call functions to fix layout and board state as requested
-    initAnalysisBoard();
-    syncSidebarHeight();
+    // Force the correct layout and update heights
+    applyAnalysisLayout();
     if ($.fn.matchHeight) {
         $.fn.matchHeight._update();
     }
