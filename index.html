@@ -43,8 +43,16 @@
                     <p id="opening-name" class="text-sm text-dark h-6 text-right truncate"></p>
                 </div>
                  <div class="flex justify-end items-center gap-2 mt-2 flex-wrap">
-                    <button id="focus-mode-toggle" class="top-action-icon-btn btn-secondary" title="Focus Mode">👁️</button>
-                    <button id="hint-button" class="top-action-icon-btn btn-secondary" title="Show Hint">💡</button>
+                    <div class="flex justify-end items-center gap-0 mt-0 flex-wrap">
+                        <button id="focus-mode-toggle" class="top-action-icon-btn btn-secondary" title="Focus Mode">
+                            <img src="icon/eye.png" alt="Focus Mode"/>
+                        </button>
+                    </div>
+                    <div class="flex justify-end items-center gap-0 mt-0 flex-wrap">
+                        <button id="hint-button" class="top-action-icon-btn btn-secondary" title="Show Hint">
+                            <img src="icon/light-bulb.png" alt="Show Hint"/>
+                        </button>
+                    </div>
                     <button id="undo-button" class="top-action-icon-btn btn-secondary" title="Undo"><img src="icon/arrow-uturn-left.png" alt="Undo"></button>
                     <button id="sound-toggle" class="top-action-icon-btn" title="Toggle Sound"><img id="sound-icon" src="icon/speaker-wave.png" alt="Sound On"></button>
                     <button id="restart-button" class="top-action-btn btn-primary flex-shrink-0">New Game</button>
@@ -84,7 +92,7 @@
                                 <span>White</span>
                                 <span>Black</span>
                             </div>
-                            <div id="move-history-log" class="flex-grow overflow-y-auto p-2"></div>
+                            <div id="move-history-log" class="overflow-y-auto p-2"></div>
                         </div>
                     </div>
                 </div>
