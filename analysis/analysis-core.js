@@ -58,6 +58,11 @@ window.AnalysisController = {
         'Blunder': { title: 'Blunder', comment: 'A very bad move that could lead to losing the game.', color: 'text-red-600', icon: '??' },
         'Miss': { title: 'Missed Opportunity', comment: 'Your opponent made a mistake, but you missed the best punishment.', color: 'text-purple-400', icon: '...' }
     },
+    ADAPTIVE_DEPTH: {
+        opening: 12, 
+        endgame: 16, 
+        opening_ply: 20
+    },
 
     init: function() {
         console.log('AnalysisController: Initializing with dedicated engine...');
@@ -74,10 +79,9 @@ window.AnalysisController = {
             this.analysisGame = new Chess();
             this.analysisGame.load_pgn(gameData.pgn);
             this.gameHistory = this.analysisGame.history({ verbose: true });
-            this.reviewData = []; // Clear previous analysis data
+            this.reviewData = [];
             this.currentMoveIndex = -1;
 
-            // Reset all state variables
             this.userShapes = [];
             this.isDrawing = false;
             this.drawStartSquare = null;
@@ -91,7 +95,7 @@ window.AnalysisController = {
 
             this.populateUIReferences();
             this.initializeVisualizerBoard();
-            this.runGameReview(); // This is now the "Fast Pass"
+            this.runGameReview();
             
         } catch (error) {
             console.error('AnalysisController: Error during initialization:', error);
@@ -108,6 +112,8 @@ window.AnalysisController = {
                 if (typeof switchToMainGame === 'function') switchToMainGame();
                 else $('#return-to-game-btn').click();
             });
+        } else {
+            alert('Analysis Error: ' + message);
         }
     },
 
@@ -135,7 +141,6 @@ window.AnalysisController = {
         this.currentMoveIndex = -1;
     },
 
-    // UPDATED: This function is now a "Fast Pass" for an instant report.
     runGameReview: async function() {
         if (this.gameHistory.length === 0) {
             this.showError("No moves to analyze.");
@@ -165,11 +170,11 @@ window.AnalysisController = {
                 const bestMoveAdvantage = Math.abs(positionEval.best - positionEval.second);
                 const classification = this.classifyMove(cpl, opponentCpl, bestMoveAdvantage, tempGame.pgn());
 
+                this.visualizerMoveNumberElement.text(`${Math.floor(i / 2) + 1}${move.color === 'w' ? '.' : '...'}`);
                 this.visualizerMovePlayedElement.text(move.san);
                 const classificationInfo = this.CLASSIFICATION_DATA[classification];
                 this.visualizerMoveAssessmentElement.text(classificationInfo.title).attr('class', `font-bold ${classificationInfo.color}`);
                 
-                // Store results in our cache
                 this.reviewData.push({
                     move: move.san,
                     score: evalAfterMove.best,
@@ -182,12 +187,14 @@ window.AnalysisController = {
             }
 
             if (this.isAnalyzing) {
-                this.recalculateStats(); // Recalculate accuracy based on the fast pass
+                this.recalculateStats();
                 
                 if (typeof switchToAnalysisRoom === 'function') {
                     switchToAnalysisRoom();
+                } else {
+                    console.error('switchToAnalysisRoom function not found.');
                 }
-                
+
                 this.initializeBoard();
                 this.setupEventHandlers();
                 this.renderFinalReview();
@@ -199,23 +206,20 @@ window.AnalysisController = {
         }
     },
 
-    // NEW: Function for on-demand deep analysis of a single move
     runDeepAnalysis: async function(moveIndex) {
-        if (this.isDeepAnalyzing) return; // Prevent multiple analyses at once
+        if (this.isDeepAnalyzing) return;
         this.isDeepAnalyzing = true;
-        this.updateMoveInUI(moveIndex, { isAnalyzing: true }); // Show loading state in UI
+        this.updateMoveInUI(moveIndex, { isAnalyzing: true });
 
         try {
             const move = this.gameHistory[moveIndex];
             const opponentCpl = (moveIndex > 0) ? this.reviewData[moveIndex - 1].cpl : 0;
 
-            // Reconstruct the board state up to the move
             let tempGame = new Chess();
             for (let i = 0; i < moveIndex; i++) {
                 tempGame.move(this.gameHistory[i]);
             }
             
-            // Run deep evaluation before and after the move
             const positionEval = await this.getStaticEvaluation(tempGame.fen(), { movetime: 5000 });
             const evalBeforeMove = (move.color === 'w') ? positionEval.best : -positionEval.best;
             
@@ -224,7 +228,6 @@ window.AnalysisController = {
             const evalAfterMove = await this.getStaticEvaluation(tempGame.fen(), { movetime: 5000 });
             const evalAfterFromPlayerPerspective = (move.color === 'w') ? evalAfterMove.best : -evalAfterMove.best;
 
-            // Recalculate and update the cached data
             const cpl = Math.max(0, evalBeforeMove - evalAfterFromPlayerPerspective);
             const bestMoveAdvantage = Math.abs(positionEval.best - positionEval.second);
             const classification = this.classifyMove(cpl, opponentCpl, bestMoveAdvantage, tempGame.pgn());
@@ -241,7 +244,7 @@ window.AnalysisController = {
             this.renderReviewSummary();
             this.drawEvalChart();
             this.updateMoveInUI(moveIndex, { isAnalyzing: false });
-            this.showMoveAssessmentDetails(moveIndex); // Refresh details panel
+            this.showMoveAssessmentDetails(moveIndex);
         } catch (error) {
             console.error("Deep analysis failed:", error);
             this.updateMoveInUI(moveIndex, { isAnalyzing: false, hasError: true });
@@ -250,7 +253,6 @@ window.AnalysisController = {
         }
     },
 
-    // UPDATED: Now accepts an options object for flexible analysis time
     getStaticEvaluation: function(fen, options = {}) {
         return new Promise((resolve) => {
             const movetime = options.movetime || 3000;
@@ -263,9 +265,14 @@ window.AnalysisController = {
                     this.stockfish.onmessage = null; 
                     resolve({ best: scores[1] || 0, second: scores[2] || 0, best_pv });
                 }
-            }, movetime + 2000); // Timeout is analysis time + 2 seconds buffer
+            }, movetime + 5000);
 
             const onMessage = (event) => {
+                if (!this.isAnalyzing && !this.isDeepAnalyzing) { // Check both flags
+                    clearTimeout(timeout);
+                    this.stockfish.onmessage = null;
+                    return resolve({ best: 0, second: 0, best_pv: '' });
+                }
                 const message = event.data;
                 const pvMatch = message.match(/multipv (\d+) .* pv (.+)/);
                 if (pvMatch) {
@@ -299,7 +306,6 @@ window.AnalysisController = {
         });
     },
     
-    // NEW: Recalculates stats from the reviewData cache
     recalculateStats: function() {
         this.cpl = { w: [], b: [] };
         this.moveCounts = { w: {}, b: {} };
