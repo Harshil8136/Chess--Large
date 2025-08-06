@@ -43,16 +43,8 @@
                     <p id="opening-name" class="text-sm text-dark h-6 text-right truncate"></p>
                 </div>
                  <div class="flex justify-end items-center gap-2 mt-2 flex-wrap">
-                  <div class="flex justify-end items-center gap-0 mt-0 flex-wrap">
-    <button id="focus-mode-toggle" class="top-action-icon-btn btn-secondary" title="Focus Mode">
-        <img src="icon/eye.png" alt="Focus Mode"/>
-    </button>
-</div>
-                     <div class="flex justify-end items-center gap-0 mt-0 flex-wrap">
-    <button id="hint-button" class="top-action-icon-btn btn-secondary" title="Show Hint">
-        <img src="icon/light-bulb.png" alt="Show Hint"/>
-    </button>
-</div>
+                    <button id="focus-mode-toggle" class="top-action-icon-btn btn-secondary" title="Focus Mode">👁️</button>
+                    <button id="hint-button" class="top-action-icon-btn btn-secondary" title="Show Hint">💡</button>
                     <button id="undo-button" class="top-action-icon-btn btn-secondary" title="Undo"><img src="icon/arrow-uturn-left.png" alt="Undo"></button>
                     <button id="sound-toggle" class="top-action-icon-btn" title="Toggle Sound"><img id="sound-icon" src="icon/speaker-wave.png" alt="Sound On"></button>
                     <button id="restart-button" class="top-action-btn btn-primary flex-shrink-0">New Game</button>
@@ -140,7 +132,7 @@
     </div>
     
     <div id="analysis-room" class="w-full max-w-screen-xl mx-auto flex-col lg:flex-row items-stretch justify-center gap-4 hidden lg:h-screen p-4">
-        <div class="w-full flex justify-center items-center">
+        <div class="w-full flex justify-center items-center js-match-height">
             <main class="w-full max-w-[720px] flex flex-col gap-2">
                 <header class="header-footer flex justify-center items-center mb-1 p-2 rounded-md">
                     <h2 class="font-bold text-xl text-center">Game Analysis</h2>
@@ -156,7 +148,7 @@
                 </footer>
             </main>
         </div>
-        <aside class="w-full lg:w-80 p-4 rounded-lg flex flex-col">
+        <aside class="w-full lg:w-80 p-4 rounded-lg flex flex-col js-match-height">
             <section class="text-center pb-4 border-b themed-border flex-shrink-0">
                 <h1 class="text-2xl font-bold">Analysis Room</h1>
                 <p class="text-sm text-dark mt-2">Review your game move by move</p>
@@ -194,12 +186,12 @@
         </aside>
     </div>
     
-    <div id="analysis-visualizer" class="hidden absolute inset-0 bg-bg-panel/95 backdrop-blur-sm z-40 flex flex-col items-center justify-center p-8">
-        <div class="text-center">
-            <h2 class="text-3xl font-bold mb-2">Analyzing Game</h2>
-            <p id="visualizer-status" class="text-lg text-dark mb-4">Initializing engine...</p>
-        </div>
-        <div class="w-full max-w-sm bg-inset rounded-lg shadow-2xl p-4 flex flex-col items-center gap-4">
+    <div id="analysis-visualizer" class="hidden absolute inset-0 bg-black/50 backdrop-blur-sm z-40 flex flex-col items-center justify-center p-8">
+        <div class="w-full max-w-sm bg-bg-panel rounded-lg shadow-2xl p-4 flex flex-col items-center gap-4">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold mb-1">Analyzing Game</h2>
+                <p id="visualizer-status" class="text-lg text-dark">Initializing engine...</p>
+            </div>
             <div id="visualizer-board-wrapper" class="w-64 h-64"></div>
             <div class="w-full text-center space-y-1 text-sm">
                 <p>Move: <span id="visualizer-move-number" class="font-bold">--</span></p>
