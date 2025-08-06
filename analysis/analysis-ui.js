@@ -9,7 +9,6 @@
         return;
     }
 
-    // This object contains all the methods that will be merged into the AnalysisController
     const uiMethods = {
 
         populateUIReferences: function() {
@@ -72,7 +71,8 @@
         },
         
         setupEventHandlers: function() {
-            this.moveListElement.off('click').on('click', '.analysis-move-item', (e) => {
+            // Click handler for navigating to a move
+            this.moveListElement.off('click.navigate').on('click.navigate', '.analysis-move-item', (e) => {
                 const moveIndex = parseInt($(e.currentTarget).data('move-index'));
                 if (!isNaN(moveIndex) && moveIndex >= 0 && moveIndex < this.gameHistory.length) {
                     this.navigateToMove(moveIndex);
@@ -80,20 +80,27 @@
                 }
             });
 
+            // NEW: Click handler for the "Deep Analysis" button
+            this.moveListElement.off('click.deep_analysis').on('click.deep_analysis', '.deep-analysis-btn', (e) => {
+                e.stopPropagation(); // Prevent the navigation click handler from firing
+                const moveIndex = parseInt($(e.currentTarget).data('move-index'));
+                if (!isNaN(moveIndex)) {
+                    this.runDeepAnalysis(moveIndex);
+                }
+            });
+
             this.retryMistakeBtn.off('click').on('click', () => {
                 if (this.currentMoveIndex < 0) return;
                 const tempGame = new Chess();
                 for (let i = 0; i < this.currentMoveIndex; i++) {
-                    tempGame.move(this.gameHistory[i].san);
+                    tempGame.move(this.gameHistory[i]);
                 }
-                const fen = tempGame.fen();
-                window.loadFenOnReturn = fen;
+                window.loadFenOnReturn = tempGame.fen();
                 switchToMainGame();
             });
 
             $(document).off('keydown.analysis').on('keydown.analysis', (e) => {
                 if ($(e.target).is('input, select, textarea') || !isAnalysisMode) return;
-
                 let newIndex = this.currentMoveIndex;
                 switch (e.key.toLowerCase()) {
                     case 'arrowleft': if (this.currentMoveIndex > 0) newIndex--; break;
@@ -107,7 +114,6 @@
                         break;
                     default: return;
                 }
-
                 if (newIndex !== this.currentMoveIndex) {
                     this.navigateToMove(newIndex);
                     window.playSound('moveSelf');
@@ -126,7 +132,6 @@
                 if (!this.isDrawing || e.which !== 3) return;
                 e.preventDefault();
                 const endSquare = $(e.target).closest('[data-square]').data('square');
-
                 if (this.drawStartSquare && endSquare) {
                     if (this.drawStartSquare === endSquare) {
                         const existingIndex = this.userShapes.findIndex(s => s.type === 'highlight' && s.square === this.drawStartSquare);
@@ -137,14 +142,59 @@
                         if (existingIndex > -1) this.userShapes.splice(existingIndex, 1);
                         else this.userShapes.push({ type: 'arrow', from: this.drawStartSquare, to: endSquare, color: 'rgba(21, 128, 61, 0.7)' });
                     }
-                } else { 
-                    this.clearUserShapes();
-                }
-                
+                } else { this.clearUserShapes(); }
                 this.redrawUserShapes();
                 this.isDrawing = false;
                 this.drawStartSquare = null;
             });
+        },
+
+        // NEW: Updates a single move in the list with its new analysis state.
+        updateMoveInUI: function(moveIndex, state = {}) {
+            const moveItem = this.moveListElement.find(`.analysis-move-item[data-move-index="${moveIndex}"]`);
+            const button = moveItem.find('.deep-analysis-btn');
+
+            if (state.isAnalyzing) {
+                button.text('...').prop('disabled', true);
+                moveItem.find('.classification-icon').html('<div class="spinner"></div>');
+            } else {
+                const review = this.reviewData[moveIndex];
+                const info = this.CLASSIFICATION_DATA[review.classification];
+                moveItem.find('.classification-icon').html(info.icon).attr('class', `classification-icon font-bold text-lg w-6 text-center ${info.color}`);
+                moveItem.attr('title', info.title);
+                button.text('Deep').prop('disabled', false);
+                
+                if (state.hasError) {
+                    button.text('Error');
+                }
+            }
+        },
+
+        renderReviewedMoveList: function() {
+            if (!this.moveListElement) return;
+            let html = '';
+            for (let i = 0; i < this.gameHistory.length; i++) {
+                const moveNum = Math.floor(i / 2) + 1;
+                const move = this.gameHistory[i];
+                const review = this.reviewData[i];
+                if (!review) continue;
+                const info = this.CLASSIFICATION_DATA[review.classification];
+                
+                // UPDATED: Added a container and the new "Deep" analysis button
+                html += `<div class="analysis-move-item flex items-center justify-between gap-3" data-move-index="${i}" title="${info.title}">`;
+                html += `<div class="flex items-center gap-3 flex-grow">`;
+                if (move.color === 'w') {
+                    html += `<span class="w-8 text-right font-bold text-dark">${moveNum}.</span>`;
+                } else {
+                    html += `<span class="w-8"></span>`;
+                }
+                html += `<span class="flex-grow font-mono">${move.san}</span>`;
+                html += `<span class="classification-icon font-bold text-lg w-6 text-center ${info.color}">${info.icon}</span>`;
+                html += `</div>`;
+                html += `<button class="deep-analysis-btn text-xs px-2 py-0.5 rounded btn-secondary flex-shrink-0" data-move-index="${i}">Deep</button>`;
+                html += `</div>`;
+            }
+            this.moveListElement.html(html);
         },
 
         renderReviewSummary: function() {
@@ -165,6 +215,7 @@
         },
 
         renderFinalReview: function() {
+            this.renderReviewSummary();
             this.renderReviewedMoveList();
             this.drawEvalChart();
             this.navigateToMove(this.gameHistory.length - 1);
@@ -173,17 +224,16 @@
         navigateToMove: function(moveIndex) {
             if (moveIndex < 0 || moveIndex >= this.gameHistory.length) return;
             
-            this.clearUserShapes();
-            
             this.currentMoveIndex = moveIndex;
             const tempGame = new Chess();
-            for (let i = 0; i <= moveIndex; i++) tempGame.move(this.gameHistory[i].san);
+            for (let i = 0; i <= moveIndex; i++) tempGame.move(this.gameHistory[i]);
             if (this.analysisBoard) this.analysisBoard.position(tempGame.fen());
             
             this.moveListElement.find('.current-move-analysis').removeClass('current-move-analysis');
             this.moveListElement.find(`[data-move-index="${moveIndex}"]`).addClass('current-move-analysis');
             
             this.showMoveAssessmentDetails(moveIndex);
+            this.redrawUserShapes();
         },
 
         showMoveAssessmentDetails: function(moveIndex) {
@@ -198,7 +248,7 @@
                 this.retryMistakeBtn.toggleClass('hidden', !isBadMove);
                 if (data.bestLineUci && ['Mistake', 'Blunder', 'Inaccuracy', 'Miss'].includes(data.classification)) {
                     const tempGame = new Chess();
-                    for(let i=0; i < moveIndex; i++) tempGame.move(this.gameHistory[i].san);
+                    for(let i=0; i < moveIndex; i++) tempGame.move(this.gameHistory[i]);
                     const sanLine = this.uciToSanLine(tempGame.fen(), data.bestLineUci);
                     this.bestLineMoves.text(sanLine);
                     this.bestLineDisplay.removeClass('hidden');
@@ -208,25 +258,6 @@
             }
         },
         
-        renderReviewedMoveList: function() {
-            if (!this.moveListElement) return;
-            let html = '';
-            for (let i = 0; i < this.gameHistory.length; i++) {
-                const moveNum = Math.floor(i / 2) + 1;
-                const move = this.gameHistory[i];
-                const review = this.reviewData[i];
-                if (!review) continue;
-                const info = this.CLASSIFICATION_DATA[review.classification];
-                html += `<div class="analysis-move-item flex items-center gap-3" data-move-index="${i}" title="${info.title}">`;
-                if (move.color === 'w') html += `<span class="w-8 text-right font-bold text-dark">${moveNum}.</span>`;
-                else html += `<span class="w-8"></span>`;
-                html += `<span class="flex-grow font-mono">${move.san}</span>`;
-                html += `<span class="font-bold text-lg w-6 text-center ${info.color}">${info.icon}</span>`;
-                html += `</div>`;
-            }
-            this.moveListElement.html(html);
-        },
-
         drawEvalChart: function() {
             if (!this.evalChartCanvas || !this.evalChartCanvas.length) return;
             try {
@@ -280,7 +311,7 @@
         },
 
         renderCoordinates: function() {
-            if (!this.boardWrapper || !this.boardWrapper.length) return;
+            if (!this.boardWrapper || !this.boardWrapper.length || !this.analysisBoard) return;
             try {
                 const isFlipped = this.analysisBoard.orientation() === 'black';
                 const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -307,7 +338,7 @@
                 this.analysisBoardElement.find('.square-55d63').removeClass('highlight-user-green highlight-user-red highlight-user-yellow highlight-user-blue');
             }
             
-            if (!this.analysisBoard) return;
+            if (!this.analysisBoard || this.currentMoveIndex < 0) return;
             
             const data = this.reviewData[this.currentMoveIndex];
             const move = this.gameHistory[this.currentMoveIndex];
@@ -375,7 +406,6 @@
         }
     };
 
-    // Merge the UI methods into the main AnalysisController object
     Object.assign(controller, uiMethods);
 
 })(window.AnalysisController);
