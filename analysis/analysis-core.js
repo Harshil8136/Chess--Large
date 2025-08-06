@@ -30,13 +30,14 @@ window.AnalysisController = {
     visualizerProgressBar: null,
 
     // --- State Variables ---
-    stockfish: null,
+    stockfish: null, 
     analysisGame: new Chess(),
     gameHistory: [],
     reviewData: [],
     evalChart: null,
     currentMoveIndex: -1,
     isAnalyzing: false,
+    isDeepAnalyzing: false, // Flag to prevent multiple deep analyses at once
     accuracy: { w: 0, b: 0 },
     moveCounts: { w: {}, b: {} },
     cpl: { w: [], b: [] },
@@ -57,18 +58,9 @@ window.AnalysisController = {
         'Blunder': { title: 'Blunder', comment: 'A very bad move that could lead to losing the game.', color: 'text-red-600', icon: '??' },
         'Miss': { title: 'Missed Opportunity', comment: 'Your opponent made a mistake, but you missed the best punishment.', color: 'text-purple-400', icon: '...' }
     },
-    ADAPTIVE_DEPTH: {
-        opening: 12, 
-        endgame: 16, 
-        opening_ply: 20
-    },
 
-    /**
-     * Entry point called by main.js to start the analysis mode.
-     */
     init: function() {
-        console.log('AnalysisController: Initializing...');
-        
+        console.log('AnalysisController: Initializing with dedicated engine...');
         const gameData = window.gameDataToAnalyze;
         if (!gameData || !gameData.stockfish || !gameData.pgn) {
             this.showError("Game data is missing or incomplete for analysis.");
@@ -76,15 +68,16 @@ window.AnalysisController = {
         }
 
         try {
+            this.isAnalyzing = true; 
             this.stockfish = gameData.stockfish;
+            
             this.analysisGame = new Chess();
             this.analysisGame.load_pgn(gameData.pgn);
             this.gameHistory = this.analysisGame.history({ verbose: true });
-            this.reviewData = [];
+            this.reviewData = []; // Clear previous analysis data
             this.currentMoveIndex = -1;
-            this.isAnalyzing = false;
 
-            // Reset state
+            // Reset all state variables
             this.userShapes = [];
             this.isDrawing = false;
             this.drawStartSquare = null;
@@ -96,17 +89,14 @@ window.AnalysisController = {
                 this.moveCounts.b[key] = 0;
             }
 
-            // Populate UI Element References
             this.populateUIReferences();
-            
-            this.initializeBoard();
             this.initializeVisualizerBoard();
-            this.setupEventHandlers();
-            this.runGameReview();
+            this.runGameReview(); // This is now the "Fast Pass"
             
         } catch (error) {
             console.error('AnalysisController: Error during initialization:', error);
             this.showError("Failed to initialize analysis system.");
+            this.isAnalyzing = false;
         }
     },
 
@@ -118,17 +108,22 @@ window.AnalysisController = {
                 if (typeof switchToMainGame === 'function') switchToMainGame();
                 else $('#return-to-game-btn').click();
             });
-        } else {
-            alert('Analysis Error: ' + message);
         }
     },
 
     stop: function() {
         console.log('AnalysisController: Stopping analysis...');
         this.isAnalyzing = false;
-        if (this.stockfish) { try { this.stockfish.postMessage('stop'); } catch (e) { console.warn(e); } }
+        
+        if (this.stockfish) { 
+            this.stockfish.terminate();
+            this.stockfish = null;
+            analysisStockfish = null;
+        }
+        
         if (this.evalChart) { try { this.evalChart.destroy(); this.evalChart = null; } catch (e) { console.warn(e); } }
         if (this.visualizerBoard) { try { this.visualizerBoard.destroy(); this.visualizerBoard = null; } catch(e) { console.warn(e); }}
+        if (this.analysisBoard) { try { this.analysisBoard.destroy(); this.analysisBoard = null; } catch(e) { console.warn(e); }}
         if(this.reviewSummaryContainer) this.reviewSummaryContainer.addClass('hidden');
         if(this.assessmentDetailsElement) this.assessmentDetailsElement.addClass('hidden');
         
@@ -140,12 +135,12 @@ window.AnalysisController = {
         this.currentMoveIndex = -1;
     },
 
+    // UPDATED: This function is now a "Fast Pass" for an instant report.
     runGameReview: async function() {
         if (this.gameHistory.length === 0) {
             this.showError("No moves to analyze.");
             return;
         }
-        this.isAnalyzing = true;
         
         try {
             let tempGame = new Chess();
@@ -155,57 +150,46 @@ window.AnalysisController = {
                 const move = this.gameHistory[i];
                 const progressPercent = ((i + 1) / this.gameHistory.length) * 100;
 
-                // Update visualizer
-                this.visualizerStatusElement.text(`Analyzing move ${i + 1} of ${this.gameHistory.length}...`);
+                this.visualizerStatusElement.text(`Analyzing move ${i + 1} of ${this.gameHistory.length} (Fast Pass)...`);
                 this.visualizerProgressBar.css('width', `${progressPercent}%`);
                 this.visualizerBoard.position(tempGame.fen());
                 
-                const positionEval = await this.getStaticEvaluation(tempGame.fen(), i);
+                const positionEval = await this.getStaticEvaluation(tempGame.fen(), { movetime: 500 });
                 const evalBeforeMove = (move.color === 'w') ? positionEval.best : -positionEval.best;
                 
-                tempGame.move(move.san);
+                tempGame.move(move);
                 
-                const evalAfterMove = await this.getStaticEvaluation(tempGame.fen(), i + 1);
+                const evalAfterMove = await this.getStaticEvaluation(tempGame.fen(), { movetime: 500 });
                 const evalAfterFromPlayerPerspective = (move.color === 'w') ? evalAfterMove.best : -evalAfterMove.best;
                 const cpl = Math.max(0, evalBeforeMove - evalAfterFromPlayerPerspective);
                 const bestMoveAdvantage = Math.abs(positionEval.best - positionEval.second);
                 const classification = this.classifyMove(cpl, opponentCpl, bestMoveAdvantage, tempGame.pgn());
 
-                // Update visualizer with move info
-                this.visualizerMoveNumberElement.text(`${Math.floor(i / 2) + 1}${move.color === 'w' ? '.' : '...'}`);
                 this.visualizerMovePlayedElement.text(move.san);
                 const classificationInfo = this.CLASSIFICATION_DATA[classification];
                 this.visualizerMoveAssessmentElement.text(classificationInfo.title).attr('class', `font-bold ${classificationInfo.color}`);
                 
-                const player = move.color;
-                if (this.moveCounts[player] && classification in this.moveCounts[player]) {
-                    this.moveCounts[player][classification]++;
-                }
-                
-                if (cpl > 0) {
-                    this.cpl[player].push(Math.min(cpl, 350));
-                }
-
+                // Store results in our cache
                 this.reviewData.push({
                     move: move.san,
                     score: evalAfterMove.best,
                     classification: classification,
-                    bestLineUci: positionEval.best_pv
+                    bestLineUci: positionEval.best_pv,
+                    cpl: cpl
                 });
 
                 opponentCpl = cpl;
-                await new Promise(resolve => setTimeout(resolve, 50));
             }
 
             if (this.isAnalyzing) {
-                this.calculateAccuracy();
-                this.renderReviewSummary();
-                // Transition to the main analysis room
+                this.recalculateStats(); // Recalculate accuracy based on the fast pass
+                
                 if (typeof switchToAnalysisRoom === 'function') {
                     switchToAnalysisRoom();
-                } else {
-                    console.error('switchToAnalysisRoom function not found. Cannot display final report.');
                 }
+                
+                this.initializeBoard();
+                this.setupEventHandlers();
                 this.renderFinalReview();
             }
         } catch (error) {
@@ -215,25 +199,73 @@ window.AnalysisController = {
         }
     },
 
-    getStaticEvaluation: function(fen, moveIndex) {
+    // NEW: Function for on-demand deep analysis of a single move
+    runDeepAnalysis: async function(moveIndex) {
+        if (this.isDeepAnalyzing) return; // Prevent multiple analyses at once
+        this.isDeepAnalyzing = true;
+        this.updateMoveInUI(moveIndex, { isAnalyzing: true }); // Show loading state in UI
+
+        try {
+            const move = this.gameHistory[moveIndex];
+            const opponentCpl = (moveIndex > 0) ? this.reviewData[moveIndex - 1].cpl : 0;
+
+            // Reconstruct the board state up to the move
+            let tempGame = new Chess();
+            for (let i = 0; i < moveIndex; i++) {
+                tempGame.move(this.gameHistory[i]);
+            }
+            
+            // Run deep evaluation before and after the move
+            const positionEval = await this.getStaticEvaluation(tempGame.fen(), { movetime: 5000 });
+            const evalBeforeMove = (move.color === 'w') ? positionEval.best : -positionEval.best;
+            
+            tempGame.move(move);
+            
+            const evalAfterMove = await this.getStaticEvaluation(tempGame.fen(), { movetime: 5000 });
+            const evalAfterFromPlayerPerspective = (move.color === 'w') ? evalAfterMove.best : -evalAfterMove.best;
+
+            // Recalculate and update the cached data
+            const cpl = Math.max(0, evalBeforeMove - evalAfterFromPlayerPerspective);
+            const bestMoveAdvantage = Math.abs(positionEval.best - positionEval.second);
+            const classification = this.classifyMove(cpl, opponentCpl, bestMoveAdvantage, tempGame.pgn());
+            
+            this.reviewData[moveIndex] = {
+                move: move.san,
+                score: evalAfterMove.best,
+                classification: classification,
+                bestLineUci: positionEval.best_pv,
+                cpl: cpl
+            };
+            
+            this.recalculateStats();
+            this.renderReviewSummary();
+            this.drawEvalChart();
+            this.updateMoveInUI(moveIndex, { isAnalyzing: false });
+            this.showMoveAssessmentDetails(moveIndex); // Refresh details panel
+        } catch (error) {
+            console.error("Deep analysis failed:", error);
+            this.updateMoveInUI(moveIndex, { isAnalyzing: false, hasError: true });
+        } finally {
+            this.isDeepAnalyzing = false;
+        }
+    },
+
+    // UPDATED: Now accepts an options object for flexible analysis time
+    getStaticEvaluation: function(fen, options = {}) {
         return new Promise((resolve) => {
-            if (!this.stockfish || !this.isAnalyzing) return resolve({ best: 0, second: 0, best_pv: '' });
+            const movetime = options.movetime || 3000;
+            if (!this.stockfish) return resolve({ best: 0, second: 0, best_pv: '' });
             
             let scores = {}; let best_pv = ''; let bestMoveFound = false;
 
             const timeout = setTimeout(() => {
                 if (!bestMoveFound) {
-                    this.stockfish.onmessage = null; // Clear the listener
+                    this.stockfish.onmessage = null; 
                     resolve({ best: scores[1] || 0, second: scores[2] || 0, best_pv });
                 }
-            }, 8000); // Increased timeout for deeper analysis
+            }, movetime + 2000); // Timeout is analysis time + 2 seconds buffer
 
             const onMessage = (event) => {
-                if (!this.isAnalyzing) {
-                    clearTimeout(timeout);
-                    this.stockfish.onmessage = null;
-                    return resolve({ best: 0, second: 0, best_pv: '' });
-                }
                 const message = event.data;
                 const pvMatch = message.match(/multipv (\d+) .* pv (.+)/);
                 if (pvMatch) {
@@ -255,18 +287,38 @@ window.AnalysisController = {
                 }
             };
             
-            const depth = (moveIndex < this.ADAPTIVE_DEPTH.opening_ply) ? this.ADAPTIVE_DEPTH.opening : this.ADAPTIVE_DEPTH.endgame;
-
             try {
                 this.stockfish.onmessage = onMessage;
                 this.stockfish.postMessage('setoption name MultiPV value 2');
                 this.stockfish.postMessage(`position fen ${fen}`);
-                this.stockfish.postMessage(`go depth ${depth}`);
+                this.stockfish.postMessage(`go movetime ${movetime}`);
             } catch (error) {
                 clearTimeout(timeout);
                 resolve({ best: 0, second: 0, best_pv: '' });
             }
         });
+    },
+    
+    // NEW: Recalculates stats from the reviewData cache
+    recalculateStats: function() {
+        this.cpl = { w: [], b: [] };
+        this.moveCounts = { w: {}, b: {} };
+        for (const key in this.CLASSIFICATION_DATA) {
+            this.moveCounts.w[key] = 0;
+            this.moveCounts.b[key] = 0;
+        }
+
+        this.reviewData.forEach((data, index) => {
+            const player = this.gameHistory[index].color;
+            if (data.cpl > 0) {
+                this.cpl[player].push(Math.min(data.cpl, 350));
+            }
+            if (this.moveCounts[player] && data.classification in this.moveCounts[player]) {
+                this.moveCounts[player][data.classification]++;
+            }
+        });
+
+        this.calculateAccuracy();
     },
     
     classifyMove: function(cpl, opponentCpl, bestMoveAdvantage, pgn) {
