@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="p-4">
 
@@ -45,8 +45,8 @@
                  <div class="flex justify-end items-center gap-2 mt-2">
                     <button id="focus-mode-toggle" class="top-action-icon-btn btn-secondary" title="Focus Mode">👁️</button>
                     <button id="hint-button" class="top-action-icon-btn btn-secondary" title="Show Hint">💡</button>
-                    <button id="undo-button" class="top-action-icon-btn btn-secondary" title="Undo"><img src="assets/icons/arrow-uturn-left.png" alt="Undo"></button>
-                    <button id="sound-toggle" class="top-action-icon-btn" title="Toggle Sound"><img id="sound-icon" src="assets/icons/speaker-wave.png" alt="Sound On"></button>
+                    <button id="undo-button" class="top-action-icon-btn btn-secondary" title="Undo"><img src="icon/arrow-uturn-left.png" alt="Undo"></button>
+                    <button id="sound-toggle" class="top-action-icon-btn" title="Toggle Sound"><img id="sound-icon" src="icon/speaker-wave.png" alt="Sound On"></button>
                     <button id="restart-button" class="top-action-btn btn-primary flex-shrink-0">New Game</button>
                  </div>
             </section>
@@ -58,10 +58,10 @@
             <div class="flex-grow pt-4 flex flex-col min-h-0">
                 <div id="moves-tab" class="tab-content active h-full flex-col gap-4">
                     <div class="flex justify-center items-center gap-4 flex-shrink-0">
-                        <button id="history-first" class="history-nav-btn" title="First Move"><img src="assets/icons/backward.png" alt="First"></button>
-                        <button id="history-prev" class="history-nav-btn" title="Previous Move"><img src="assets/icons/chevron-left.png" alt="Previous"></button>
-                        <button id="history-next" class="history-nav-btn" title="Next Move"><img src="assets/icons/chevron-right.png" alt="Next"></button>
-                        <button id="history-last" class="history-nav-btn" title="Current Position"><img src="assets/icons/forward.png" alt="Last"></button>
+                        <button id="history-first" class="history-nav-btn" title="First Move"><img src="icon/backward.png" alt="First"></button>
+                        <button id="history-prev" class="history-nav-btn" title="Previous Move"><img src="icon/chevron-left.png" alt="Previous"></button>
+                        <button id="history-next" class="history-nav-btn" title="Next Move"><img src="icon/chevron-right.png" alt="Next"></button>
+                        <button id="history-last" class="history-nav-btn" title="Current Position"><img src="icon/forward.png" alt="Last"></button>
                     </div>
                     <div id="opening-explorer" class="p-2 bg-inset rounded-md hidden flex-shrink-0">
                         <h4 class="font-bold text-sm text-center border-b themed-border pb-1 mb-1">Opening Explorer</h4>
@@ -85,15 +85,15 @@
                     <div id="game-summary-section" class="p-3 bg-inset rounded-md space-y-4 hidden">
                          <h3 class="text-xl font-bold text-center">Game Summary</h3>
                          <div class="text-center">
-                            <p id="summary-opening-name" class="text-sm text-dark">Opening: ---</p>
-                            <p id="summary-final-material" class="text-sm text-dark">Final Material: ---</p>
+                             <p id="summary-opening-name" class="text-sm text-dark">Opening: ---</p>
+                             <p id="summary-final-material" class="text-sm text-dark">Final Material: ---</p>
                          </div>
                          <div id="summary-accuracy" class="flex justify-around text-center">
-                             <div><div class="font-bold text-lg">--%</div><div class="text-dark">White Accuracy</div></div>
-                             <div><div class="font-bold text-lg">--%</div><div class="text-dark">Black Accuracy</div></div>
+                              <div><div class="font-bold text-lg">--%</div><div class="text-dark">White Accuracy</div></div>
+                              <div><div class="font-bold text-lg">--%</div><div class="text-dark">Black Accuracy</div></div>
                          </div>
                          <div id="summary-move-counts" class="grid grid-cols-3 gap-2 text-center">
-                                 <span class="col-span-3 text-sm text-dark italic">Run full review for move breakdown.</span>
+                                  <span class="col-span-3 text-sm text-dark italic">Run full review for move breakdown.</span>
                          </div>
                     </div>
                     <div class="flex-grow flex items-center justify-center">
@@ -244,13 +244,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script src="js/config.js"></script>
-
-    <script src="js/modules/sound.js"></script>
-    <script src="js/modules/ui.js"></script>
-    <script src="js/modules/engine.js"></script>
-    <script src="js/modules/game.js"></script>
-    <script src="js/modules/analysis.js"></script>
-
+    <script src="js/ui.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/game.js"></script>
     <script src="js/main.js"></script>
+
+    <script src="analysis/analysis-core.js"></script>
+    <script src="analysis/analysis-ui.js"></script>
 </body>
 </html>
