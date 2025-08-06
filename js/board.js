@@ -1,4 +1,4 @@
-	// ===================================================================================
+// ===================================================================================
 //  BOARD.JS
 //  Manages the chessboard interface, interactions, and visual feedback.
 // ===================================================================================
@@ -31,24 +31,31 @@ function buildBoard(position = 'start') {
         onSquareClick($(this).data('square'));
     });
     
-    board.orientation(humanPlayer === 'w' ? 'white' : 'black');
-    renderCoordinates();
-    syncSidebarHeight();
+    const orientation = humanPlayer === 'w' ? 'white' : 'black';
+    board.orientation(orientation);
+    renderCoordinates(orientation, 'main');
     redrawUserShapes();
 }
 
-function renderCoordinates() { 
-    const isFlipped = board.orientation() === 'black'; 
+function renderCoordinates(orientation = 'white', target = 'main') { 
+    const isFlipped = orientation === 'black'; 
     const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']; 
     let ranks = ['1', '2', '3', '4', '5', '6', '7', '8']; 
     if (isFlipped) { files.reverse(); } else { ranks.reverse(); } 
-    const topFilesHtml = files.map(f => `<span>${f}</span>`).join(''); 
-    const bottomFilesHtml = files.map(f => `<span>${f}</span>`).join(''); 
+    const filesHtml = files.map(f => `<span>${f}</span>`).join(''); 
     const ranksHtml = ranks.map(r => `<span>${r}</span>`).join(''); 
-    topFiles.html(topFilesHtml); 
-    bottomFiles.html(bottomFilesHtml); 
-    leftRanks.html(ranksHtml); 
-    rightRanks.html(ranksHtml); 
+    
+    if (target === 'main') {
+        $('#top-files').html(filesHtml); 
+        $('#bottom-files').html(filesHtml); 
+        $('#left-ranks').html(ranksHtml); 
+        $('#right-ranks').html(ranksHtml);
+    } else if (target === 'analysis') {
+        $('#analysis-top-files').html(filesHtml);
+        $('#analysis-bottom-files').html(filesHtml);
+        $('#analysis-left-ranks').html(ranksHtml);
+        $('#analysis-right-ranks').html(ranksHtml);
+    }
 }
 
 // --- Highlighting and Drawing Functions ---
