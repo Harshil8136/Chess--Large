@@ -20,7 +20,10 @@
             <main id="board-main-content" class="w-full flex flex-col gap-2">
                 <header class="header-footer flex justify-between items-center mb-1 p-2 rounded-md gap-4">
                     <span id="top-player-name" class="font-bold text-lg w-48 truncate">AI (Black)</span>
-                    <div id="captured-by-black" class="captured-pieces-container flex flex-wrap items-center min-h-[32px] rounded-md p-1 flex-grow justify-start"></div>
+                    <div id="top-clock" class="player-clock">--:--</div>
+                    <div class="captured-pieces-tray">
+                        <div id="captured-by-black" class="captured-pieces-container"></div>
+                    </div>
                     <span id="black-advantage" class="font-bold text-green-400 flex-shrink-0"></span>
                 </header>
                 <div class="board-wrapper">
@@ -31,7 +34,10 @@
                 </div>
                 <footer class="header-footer flex justify-between items-center mt-1 p-2 rounded-md gap-4">
                     <span id="bottom-player-name" class="font-bold text-lg w-48 truncate">Player (White)</span>
-                    <div id="captured-by-white" class="captured-pieces-container flex flex-wrap items-center min-h-[32px] rounded-md p-1 flex-grow justify-start"></div>
+                    <div id="bottom-clock" class="player-clock">--:--</div>
+                    <div class="captured-pieces-tray">
+                        <div id="captured-by-white" class="captured-pieces-container"></div>
+                    </div>
                     <span id="white-advantage" class="font-bold text-green-400 flex-shrink-0"></span>
                 </footer>
             </main>
@@ -97,44 +103,69 @@
                     </div>
                 </div>
                 
-                <div id="settings-tab" class="tab-content h-full flex-col gap-6">
-                    <div class="flex justify-between items-center"><span class="font-bold text-lg">Player Name:</span><span id="player-name" class="text-lg text-dark cursor-pointer hover:text-light" title="Click to edit name">Player</span></div>
-                    <div>
-                        <label for="difficulty-slider" class="font-bold text-lg mb-2 block text-center">AI ELO: <span id="elo-display">1200</span></label>
-                        <input type="range" id="difficulty-slider" min="1" max="12" value="4" step="1" class="w-full"/>
+                <div id="settings-tab" class="tab-content h-full flex-col gap-2">
+                    <div class="setting-group">
+                        <div class="flex justify-between items-center"><span class="font-bold text-lg">Player Name:</span><span id="player-name" class="text-lg text-dark cursor-pointer hover:text-light" title="Click to edit name">Player</span></div>
                     </div>
-                    <div class="flex justify-between items-center">
-                          <label for="ui-theme-selector" class="font-bold text-lg">UI Theme</label>
-                          <select id="ui-theme-selector" class="w-48 p-2 rounded-md themed-select"></select>
+                    
+                    <div class="setting-group">
+                        <h4 class="setting-group-title">Game & AI</h4>
+                        <div class="flex justify-between items-center">
+                            <label for="time-control-selector" class="font-bold">Time Control</label>
+                            <select id="time-control-selector" class="w-36 p-2 rounded-md themed-select"></select>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label for="show-time-control-modal-toggle" class="font-bold">Ask on New Game</label>
+                            <input type="checkbox" id="show-time-control-modal-toggle" class="h-5 w-5 rounded-sm themed-border text-blue-600 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="difficulty-slider" class="font-bold mb-1 block text-center">AI ELO: <span id="elo-display">1200</span></label>
+                            <input type="range" id="difficulty-slider" min="1" max="12" value="4" step="1" class="w-full"/>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                          <label for="theme-selector" class="font-bold text-lg">Board Theme</label>
-                          <select id="theme-selector" class="w-48 p-2 rounded-md themed-select"></select>
+
+                    <div class="setting-group">
+                        <h4 class="setting-group-title">Appearance</h4>
+                        <div class="flex justify-between items-center">
+                            <label for="ui-theme-selector" class="font-bold">UI Theme</label>
+                            <select id="ui-theme-selector" class="w-36 p-2 rounded-md themed-select"></select>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label for="theme-selector" class="font-bold">Board Theme</label>
+                            <select id="theme-selector" class="w-36 p-2 rounded-md themed-select"></select>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label for="piece-theme-selector" class="font-bold">Piece Theme</label>
+                            <select id="piece-theme-selector" class="w-36 p-2 rounded-md themed-select"></select>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                          <label for="piece-theme-selector" class="font-bold text-lg">Piece Theme</label>
-                          <select id="piece-theme-selector" class="w-48 p-2 rounded-md themed-select"></select>
+
+                    <div class="setting-group">
+                         <h4 class="setting-group-title">Options</h4>
+                        <div class="flex justify-between items-center">
+                            <label for="threats-toggle" class="font-bold">Highlight Threats</label>
+                            <input type="checkbox" id="threats-toggle" class="h-5 w-5 rounded-sm themed-border text-blue-600 focus:ring-blue-500">
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label for="log-box-toggle" class="font-bold">Show Debug Log</label>
+                            <input type="checkbox" id="log-box-toggle" class="h-5 w-5 rounded-sm themed-border text-blue-600 focus:ring-blue-500">
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <label for="threats-toggle" class="font-bold text-lg">Highlight Threats</label>
-                        <input type="checkbox" id="threats-toggle" class="h-5 w-5 rounded-sm themed-border text-blue-600 focus:ring-blue-500">
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <label for="log-box-toggle" class="font-bold text-lg">Show Debug Log</label>
-                        <input type="checkbox" id="log-box-toggle" class="h-5 w-5 rounded-sm themed-border text-blue-600 focus:ring-blue-500">
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 pt-2 border-t themed-border">
+                    
+                    <div class="pt-2 grid grid-cols-2 gap-2">
                         <button id="swap-sides-button" class="w-full px-4 py-2 font-bold rounded-lg shadow-md btn-secondary" title="Swap Sides (S)">Swap Sides</button>
                         <button id="export-pgn-btn" class="w-full px-4 py-2 font-bold rounded-lg shadow-md btn-secondary">Export PGN</button>
                     </div>
-                    <div class="pt-2 border-t themed-border">
-                        <label for="fen-input" class="font-bold text-lg mb-2 block">Load Position from FEN</label>
+                    
+                    <div class="pt-2">
+                        <label for="fen-input" class="font-bold mb-2 block">Load Position from FEN</label>
                         <div class="flex gap-2">
                             <input type="text" id="fen-input" class="w-full p-2 rounded-md themed-select font-mono text-sm" placeholder="Paste FEN string here...">
                             <button id="load-fen-btn" class="px-4 font-bold rounded-lg shadow-md btn-primary">Load</button>
                         </div>
                     </div>
-                    <div class="pt-4 mt-auto border-t themed-border">
+
+                    <div class="pt-2 mt-auto">
                         <button id="show-shortcuts-btn" class="w-full px-4 py-2 font-bold rounded-lg shadow-md btn-secondary">Show Shortcuts</button>
                     </div>
                 </div>
