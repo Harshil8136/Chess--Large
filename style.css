@@ -43,28 +43,29 @@ aside {
     }
 }
 
+/* UPDATED: Constrain the main board content to prevent it from becoming too large on big screens. */
+#board-main-content {
+    max-width: 90vh; /* Max width is 90% of the viewport height (to maintain aspect ratio) */
+    max-height: 90vh; /* Max height is 90% of the viewport height */
+    margin: auto; /* Ensures it stays centered */
+}
+
 #board {
   max-height: 100%;
   max-width: 100%;
   margin: 0 auto;
 }
 
-/* UPDATED: Flexbox layout fixes for main game and analysis views */
 @media (min-width: 1024px) {
     #board-area-container,
     #analysis-room > div:first-child {
-        flex: 1 1 auto; /* Allow the board area to grow and fill available space */
-        min-width: 0;   /* Prevents flexbox overflow issues */
-    }
-
-    #board-main-content {
-        /* Ensures the board and its headers are centered within the available space */
-        margin: auto;
+        flex: 1 1 auto;
+        min-width: 0;
     }
 
     #main-game aside,
     #analysis-room > aside {
-        flex-shrink: 0; /* Prevent the sidebar from shrinking */
+        flex-shrink: 0;
     }
 }
 
@@ -168,7 +169,7 @@ div[data-square] {
 .analysis-move-item { cursor: pointer; transition: background-color 0.2s; padding: 2px 8px; border-radius: 4px; }
 .analysis-move-item:hover { background-color: #504d49; }
 .premove-highlight { background-color: rgba(255, 165, 0, 0.7) !important; }
-.hidden { display: none !important; }
+.hidden { display: none; }
 
 #log-box-container {
     background-color: var(--bg-panel);
@@ -192,6 +193,17 @@ div[data-square] {
     opacity: 1;
 }
 
+#analysis-visualizer {
+    background-color: rgba(26, 25, 22, 0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+#analysis-visualizer h2 {
+    color: var(--text-light);
+}
+#analysis-visualizer #visualizer-status {
+    color: var(--text-dark);
+}
 
 .move-history-grid { display: grid; grid-template-columns: 2.5rem 1fr 1fr; gap: 4px 8px; align-items: center; }
 ::-webkit-scrollbar { width: 12px; }
