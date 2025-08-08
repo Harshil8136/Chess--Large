@@ -71,7 +71,6 @@
         },
         
         setupEventHandlers: function() {
-            // Click handler for navigating to a move
             this.moveListElement.off('click.navigate').on('click.navigate', '.analysis-move-item', (e) => {
                 const moveIndex = parseInt($(e.currentTarget).data('move-index'));
                 if (!isNaN(moveIndex) && moveIndex >= 0 && moveIndex < this.gameHistory.length) {
@@ -80,9 +79,8 @@
                 }
             });
 
-            // NEW: Click handler for the "Deep Analysis" button
             this.moveListElement.off('click.deep_analysis').on('click.deep_analysis', '.deep-analysis-btn', (e) => {
-                e.stopPropagation(); // Prevent the navigation click handler from firing
+                e.stopPropagation(); 
                 const moveIndex = parseInt($(e.currentTarget).data('move-index'));
                 if (!isNaN(moveIndex)) {
                     this.runDeepAnalysis(moveIndex);
@@ -91,7 +89,7 @@
 
             this.retryMistakeBtn.off('click').on('click', () => {
                 if (this.currentMoveIndex < 0) return;
-                const tempGame = new Chess();
+                const tempGame = new Chess(this.startingFen === 'start' ? undefined : this.startingFen);
                 for (let i = 0; i < this.currentMoveIndex; i++) {
                     tempGame.move(this.gameHistory[i]);
                 }
@@ -149,17 +147,16 @@
             });
         },
 
-        // NEW: Updates a single move in the list with its new analysis state.
         updateMoveInUI: function(moveIndex, state = {}) {
             const moveItem = this.moveListElement.find(`.analysis-move-item[data-move-index="${moveIndex}"]`);
             const button = moveItem.find('.deep-analysis-btn');
 
             if (state.isAnalyzing) {
                 button.text('...').prop('disabled', true);
-                moveItem.find('.classification-icon').html('<div class="spinner"></div>');
+                moveItem.find('.classification-icon').html('<div class="spinner"></div>').removeClass(); // Clear color classes
             } else {
                 const review = this.reviewData[moveIndex];
-                const info = this.CLASSIFICATION_DATA[review.classification];
+                const info = CLASSIFICATION_DATA[review.classification];
                 moveItem.find('.classification-icon').html(info.icon).attr('class', `classification-icon font-bold text-lg w-6 text-center ${info.color}`);
                 moveItem.attr('title', info.title);
                 button.text('Deep').prop('disabled', false);
@@ -167,6 +164,14 @@
                 if (state.hasError) {
                     button.text('Error');
                 }
+                
+                moveItem.css('transition', 'background-color 0.5s ease')
+                        .css('background-color', 'var(--text-accent)');
+                setTimeout(() => {
+                    if (!moveItem.hasClass('current-move-analysis')) {
+                         moveItem.css('background-color', '');
+                    }
+                }, 1000);
             }
         },
 
@@ -178,9 +183,8 @@
                 const move = this.gameHistory[i];
                 const review = this.reviewData[i];
                 if (!review) continue;
-                const info = this.CLASSIFICATION_DATA[review.classification];
+                const info = CLASSIFICATION_DATA[review.classification];
                 
-                // UPDATED: Added a container and the new "Deep" analysis button
                 html += `<div class="analysis-move-item flex items-center justify-between gap-3" data-move-index="${i}" title="${info.title}">`;
                 html += `<div class="flex items-center gap-3 flex-grow">`;
                 if (move.color === 'w') {
@@ -206,29 +210,38 @@
                 const w_count = this.moveCounts.w[key] || 0;
                 const b_count = this.moveCounts.b[key] || 0;
                 if (w_count > 0 || b_count > 0) {
-                    const info = this.CLASSIFICATION_DATA[key];
+                    const info = CLASSIFICATION_DATA[key];
                     countsHtml += `<div class="text-right">${w_count}</div><div class="text-center font-bold ${info.color}" title="${info.title}">${info.icon} ${key}</div><div class="text-left">${b_count}</div>`;
                 }
             });
             this.moveCountsContainer.html(countsHtml);
             this.reviewSummaryContainer.removeClass('hidden');
         },
+        
+        renderGameSummaryAccuracies: function() {
+            if (summaryAccuracy) {
+                summaryAccuracy.find('div:first-child .font-bold').text(this.accuracy.w + '%');
+                summaryAccuracy.find('div:last-child .font-bold').text(this.accuracy.b + '%');
+            }
+        },
 
         renderFinalReview: function() {
             this.renderReviewSummary();
             this.renderReviewedMoveList();
             this.drawEvalChart();
-            this.navigateToMove(this.gameHistory.length - 1);
+            this.renderGameSummaryAccuracies();
+            this.navigateToMove(0);
         },
         
         navigateToMove: function(moveIndex) {
             if (moveIndex < 0 || moveIndex >= this.gameHistory.length) return;
             
             this.currentMoveIndex = moveIndex;
-            const tempGame = new Chess();
+            const tempGame = new Chess(this.startingFen === 'start' ? undefined : this.startingFen);
             for (let i = 0; i <= moveIndex; i++) tempGame.move(this.gameHistory[i]);
             if (this.analysisBoard) this.analysisBoard.position(tempGame.fen());
             
+            this.moveListElement.find('.analysis-move-item').css('background-color', '');
             this.moveListElement.find('.current-move-analysis').removeClass('current-move-analysis');
             this.moveListElement.find(`[data-move-index="${moveIndex}"]`).addClass('current-move-analysis');
             
@@ -239,7 +252,7 @@
         showMoveAssessmentDetails: function(moveIndex) {
             const data = this.reviewData[moveIndex];
             if (!data) return;
-            const info = this.CLASSIFICATION_DATA[data.classification];
+            const info = CLASSIFICATION_DATA[data.classification];
             if (info) {
                 this.assessmentTitleElement.text(info.title).attr('class', `text-lg font-bold ${info.color}`);
                 this.assessmentCommentElement.text(info.comment);
@@ -247,7 +260,7 @@
                 const isBadMove = data.classification === 'Mistake' || data.classification === 'Blunder';
                 this.retryMistakeBtn.toggleClass('hidden', !isBadMove);
                 if (data.bestLineUci && ['Mistake', 'Blunder', 'Inaccuracy', 'Miss'].includes(data.classification)) {
-                    const tempGame = new Chess();
+                    const tempGame = new Chess(this.startingFen === 'start' ? undefined : this.startingFen);
                     for(let i=0; i < moveIndex; i++) tempGame.move(this.gameHistory[i]);
                     const sanLine = this.uciToSanLine(tempGame.fen(), data.bestLineUci);
                     this.bestLineMoves.text(sanLine);
