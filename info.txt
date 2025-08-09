@@ -17,8 +17,16 @@ I will give you code for each file, dont give me explaination or any think JUST 
 │   ├── analysis-core.js
 │   └── analysis-ui.js
 │
-├── img/
-│   └── (This folder contains all piece image sets referenced in config.js)
+├── lib/
+│   ├── chart.min.js
+│   ├── chess.min.js
+│   ├── chessboard-1.0.0.min.css
+│   ├── chessboard-1.0.0.min.js
+│   ├── gsap.min.js
+│   ├── howler.min.js
+│   ├── jquery-3.6.0.min.js
+│   ├── sweetalert2.min.js
+│   └── tailwind.min.css
 │
 ├── icon/
 │   ├── arrow-uturn-left.png
@@ -37,6 +45,8 @@ I will give you code for each file, dont give me explaination or any think JUST 
     ├── move-check.mp3
     ├── move-self.mp3
     └── promote.mp3
+├── img/
+│   └── (This folder contains all piece image sets referenced in config.js)
 
 
 RULES LIST: Chess Application Quality Standards
