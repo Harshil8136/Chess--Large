@@ -75,3 +75,64 @@ This document defines the core quality standards and operational constraints for
      They cannot install software, use a local server, or access the browser's developer console for debugging. All code must be robust enough to function correctly when the index.html file is opened directly from the local filesystem (file:/// protocol).
 
 
+
+
+AI Development Pillars: Chess Application
+This document outlines the non-negotiable rules and constraints for developing the chess application. All generated code must strictly adhere to these pillars to ensure quality, stability, and maintainability.
+
+Pillar 1: Code Integrity and Completeness
+1.1. No Code Omission: Every function, variable, event listener, and logical block from the original source code must be fully accounted for and correctly migrated to the new file structure. The new code must not be a summary; it must be a complete and total refactoring.
+1.2. 100% Functional Parity: The refactored application must be functionally identical to the original. All features, from gameplay mechanics to UI interactions, must work exactly as they did before, unless an explicit change is requested.
+1.3. Error Resilience: The application must be free of console errors upon loading and during gameplay. It must handle potential issues gracefully without crashing and provide clear user feedback.
+
+Pillar 2: Project Architecture
+2.1. Strict File Structure Adherence: All code must be organized into the following file structure. No code should be placed in a file that violates its designated purpose.
+
+/ (root directory)
+├── index.html
+├── style.css
+│
+├── js/
+│   ├── config.js          // Single, complete config file.
+│   ├── drawing.js         // Shared arrow and highlight drawing functions.
+│   ├── modals.js          // All pop-up modal definitions.
+│   ├── debug.js           // Draggable debug console logic.
+│   ├── sound.js           // Sound playback management.
+│   ├── timer.js           // Time control logic.
+│   ├── ai.js              // AI logic.
+│   ├── ui.js              // Main UI update functions.
+│   ├── board.js           // Main game board interaction.
+│   ├── game.js            // Core game state and rules management.
+│   └── main.js            // Main entry point, initializes app & event listeners.
+│
+└── analysis/
+    ├── analysis.js        // Main analysis controller.
+    ├── analysis-engine.js // Communication with analysis Stockfish.
+    ├── analysis-eval.js   // Move classification & accuracy logic.
+    ├── analysis-board.js  // Manages the analysis board instance.
+    ├── analysis-chart.js  // Manages the evaluation graph.
+    ├── analysis-review.js // Renders the move list & summary.
+    └── analysis-viz.js    // Controls the "Analyzing..." progress modal.
+
+2.2. Correct Dependency Loading: The index.html file must load all scripts in the correct order to satisfy dependencies, with config.js loaded first and main.js loaded last.
+
+Pillar 3: Technical & Operational Constraints
+3.1. No Server Environment: The application must run perfectly when index.html is opened directly in a web browser via the file:/// protocol. This means:
+No ES6 modules (import/export). Use traditional script loading.
+All asset paths (img/, sounds/) must be relative and compatible with this environment.
+3.2. Online Engine Loading: The Stockfish engine (for both AI play and analysis) must be loaded from a reliable online CDN, not a local file. This is to ensure it loads reliably without server-related issues (like MIME type errors).
+3.3. Data Persistence: All user settings (themes, sound preferences, AI difficulty, etc.) must be saved to the browser's localStorage and reloaded automatically on subsequent visits.
+
+Pillar 4: Quality and User Experience
+4.1. Flawless Chess Logic: All chess rules, including castling, en passant, pawn promotion, stalemate, threefold repetition, and the 50-move rule, must be implemented perfectly.
+4.2. Perfect State Synchronization: The visual board must always be an exact and immediate representation of the internal game state (chess.js instance). There shall be no "ghost pieces" or desynchronization.
+4.3. Glitch-Free UI: The user interface must be stable and free of flickering, resizing, or graphical artifacts, especially during move animations and window resizing.
+4.4. Context-Aware Controls: All buttons and UI controls must be intelligently enabled or disabled based on the current game state (e.g., "Undo" button is disabled at the start of the game, navigation buttons are disabled during AI's turn).
+
+Pillar 5: AI Output and Delivery Protocol
+5.1. Atomic Updates: All refactoring work must be delivered in atomic units.
+First, provide a list of all files that will be created or modified.
+Then, provide the complete, final code for each file in a separate, sequential response. Do not combine files or provide partial code.
+
+
+
