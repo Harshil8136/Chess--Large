@@ -86,34 +86,7 @@ Pillar 1: Code Integrity and Completeness
 1.3. Error Resilience: The application must be free of console errors upon loading and during gameplay. It must handle potential issues gracefully without crashing and provide clear user feedback.
 
 Pillar 2: Project Architecture
-2.1. Strict File Structure Adherence: All code must be organized into the following file structure. No code should be placed in a file that violates its designated purpose.
-
-/ (root directory)
-├── index.html
-├── style.css
-│
-├── js/
-│   ├── config.js          // Single, complete config file.
-│   ├── drawing.js         // Shared arrow and highlight drawing functions.
-│   ├── modals.js          // All pop-up modal definitions.
-│   ├── debug.js           // Draggable debug console logic.
-│   ├── sound.js           // Sound playback management.
-│   ├── timer.js           // Time control logic.
-│   ├── ai.js              // AI logic.
-│   ├── ui.js              // Main UI update functions.
-│   ├── board.js           // Main game board interaction.
-│   ├── game.js            // Core game state and rules management.
-│   └── main.js            // Main entry point, initializes app & event listeners.
-│
-└── analysis/
-    ├── analysis.js        // Main analysis controller.
-    ├── analysis-engine.js // Communication with analysis Stockfish.
-    ├── analysis-eval.js   // Move classification & accuracy logic.
-    ├── analysis-board.js  // Manages the analysis board instance.
-    ├── analysis-chart.js  // Manages the evaluation graph.
-    ├── analysis-review.js // Renders the move list & summary.
-    └── analysis-viz.js    // Controls the "Analyzing..." progress modal.
-
+2.1. Strict File Structure Adherence: All code must be organized into the file structure. No code should be placed in a file that violates its designated purpose.
 2.2. Correct Dependency Loading: The index.html file must load all scripts in the correct order to satisfy dependencies, with config.js loaded first and main.js loaded last.
 
 Pillar 3: Technical & Operational Constraints
