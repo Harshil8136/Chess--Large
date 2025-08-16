@@ -1,75 +1,73 @@
-## Application Overview chessboard
-This is a modern, browser-based chess application designed to provide a comprehensive playing and analysis experience. It's built entirely with client-side web technologies (HTML, CSS, and JavaScript), meaning it runs directly in a web browser without needing a dedicated server. Its modular architecture ensures stability and maintainability.
+**Browser-Based Chess with Deep Analysis ♟️**
+A feature-rich, single-page chess application built with modern web technologies. Play against a powerful AI, analyze your games with move-by-move feedback, and enjoy a fully customizable interface—all running directly in your browser with no server required.
+
+This project is designed to be a completely self-contained and portable chess experience that functions perfectly when opened directly from the local filesystem (file:///), without the need for a web server.
 
 ## Core Features
-The application is divided into three main feature sets: gameplay, user experience, and post-game analysis.
-Gameplay & AI
-Complete Chess Logic: Flawlessly implements all rules of chess, including special moves like castling, en passant, and pawn promotion.
-Scalable AI Opponent: Integrated with the powerful Stockfish chess engine, allowing users to play against a competent AI.
-Adjustable Difficulty: Features multiple ELO-based difficulty levels, from beginner to advanced, by adjusting the engine's calculation depth and time.
-Time Controls: Supports various timing formats, including unlimited time, blitz, and rapid games with time increments.
+**👑 Gameplay & AI**
+Full FIDE Rule Implementation: Powered by chess.js for flawless rule enforcement, including special moves like castling, en passant, and pawn promotion.
+Scalable Stockfish AI: Play against the world-class Stockfish chess engine, running safely in a background Web Worker to keep the UI fast and responsive.
+Adjustable Difficulty: A range of ELO-based difficulty levels, from beginner to grandmaster, perfect for all skill levels.
+Time Controls: Supports multiple time formats, including Unlimited, Blitz (3+2), and Rapid (15+10), with automatic time increment handling.
 
-User Interface & Experience
-Dual-Input Board: Offers both intuitive drag-and-drop and click-to-move functionality for piece interaction.
-Visual Feedback: Provides clear highlighting for selected pieces, all legal moves, and potential threats to the player's pieces.
-Live Evaluation Bar: A real-time evaluation bar shows the strategic advantage according to the engine.
-Full Customization: Users can personalize their experience by choosing from multiple board themes, piece styles, and overall UI color themes.
-Premove Functionality: Players can queue their next move while the AI is thinking, allowing for faster gameplay.
-Game Analysis & Review
-Full Game Review: After a game, users can run a comprehensive analysis that evaluates every move.
-Move Classification: Each move is categorized (e.g., Brilliant, Best, Mistake, Blunder) based on its impact on the game.
-Accuracy Score: Provides a percentage-based accuracy score for both players, summarizing their overall performance.
-Interactive Replay: Users can navigate through the game's move history, with the board updating to any position. The engine's "best line" is shown for key moments.
-Evaluation Graph: A visual chart plots the engine's evaluation after each move, making it easy to see the game's turning points.
+**🎨 UI & User Experience**
+Interactive Board: Intuitive piece movement with both drag-and-drop and click-to-move controls.
+Instant Visual Feedback: Clear highlighting for selected pieces, legal moves, premoves, and threatened pieces.
+Live Evaluation Bar: A real-time evaluation bar provides an at-a-glance understanding of the strategic advantage.
+Full Customization: Personalize your experience with a wide array of board themes, piece sets, and UI color themes, with all preferences saved locally.
 
-## Technical Architecture & Libraries
-The application is built using a curated set of powerful, open-source libraries to handle the complex aspects of chess logic, engine communication, and user interaction.
+**📊 Game Analysis & Review**
+Deep Post-Game Analysis: A powerful analysis engine evaluates every move of your game, providing classifications and insights.
+Rich Move Classification: Moves are categorized with descriptive icons and colors (Brilliant, Great, Best, Mistake, Blunder, etc.).
+Player Accuracy Score: Get a percentage-based accuracy score for both players to summarize overall performance.
+Interactive Evaluation Graph: A dynamic chart visualizes the flow of the game. Click anywhere on the graph to instantly jump to that move.
 
-How It's Built
-The structure is a classic single-page application. HTML provides the skeleton, CSS (a mix of Tailwind CSS and a custom stylesheet) handles the responsive design and theming, and JavaScript drives all functionality.
-A key architectural decision is the use of a Web Worker to run the Stockfish engine. This moves the intensive AI calculations to a background thread, ensuring the user interface remains smooth and responsive at all times. The application intelligently manages multiple engine instances: one for the AI opponent and a separate, lower-priority one for live analysis and hints to prevent conflicts.
+**⚙️ Advanced Tools**
+FEN & PGN Support: Load any position using a FEN string or export your completed games as a PGN file.
+Advanced In-Game Debugger: A custom-built console log provides detailed application information, including a "Verbose Mode" to view raw engine communication, performance timers, and a global error handler—all designed to work in environments where browser developer tools are disabled.
 
-Third-Party Libraries
-chess.js: The logical "rules engine" of the application. This library is responsible for move validation, FEN/PGN parsing, and tracking all game states (like checkmate or stalemate).
-chessboard.js: This library renders the interactive visual chessboard, handling piece placement and user input.
-jQuery: Used to simplify DOM manipulation and event handling across the application.
-howler.js: A robust audio library that manages all game sound effects for a consistent cross-browser experience.
-Chart.js: Powers the dynamic and interactive evaluation graph in the Analysis Room.
-SweetAlert2: Used to create clean, professional-looking pop-up dialogs for things like pawn promotion and game-over notifications.
-GSAP (GreenSock): A high-performance animation library that ensures smooth visuals, most notably for the real-time evaluation bar.
+## Tech Stack & Architecture
+The application is a classic single-page application built with a modular file structure. A key architectural decision is the use of Web Workers to run the Stockfish engine in a separate thread, ensuring the UI never freezes during complex AI calculations. The app intelligently manages multiple engine instances for the AI opponent, live analysis, and hints to prevent resource conflicts.
 
-Here is a breakdown of what each file does in the project.
+**Library	Purpose**
+Stockfish	The powerful open-source chess engine, running in a Web Worker.
+chess.js	For all game logic, move validation, and FIDE rule enforcement.
+chessboard.js	Renders the visual, interactive chessboard and handles user input.
+jQuery	Simplifies DOM manipulation and event handling across the application.
+Chart.js	Creates the interactive evaluation graph for the post-game analysis.
+Howler.js	Manages all game sound effects for a reliable, cross-browser experience.
+SweetAlert2	Provides clean, professional-looking pop-up modals and dialogs.
+GSAP	A high-performance animation library for smooth UI effects like the evaluation bar.
+Tailwind CSS	A utility-first CSS framework for building the application's layout and interface.
 
-## Root Directory 📁
-index.html: This is the main file for the entire application. It defines the complete HTML structure—the board, the sidebar, all the buttons, and modal dialogs. It's also responsible for loading all the necessary CSS stylesheets and JavaScript files in the correct order.
+**Browser-Based Chess with Deep Analysis ♟️**
+A feature-rich, single-page chess application built with modern web technologies. Play against a powerful AI, analyze your games with move-by-move feedback, and enjoy a fully customizable interface—all running directly in your browser with no server required.
+This project is designed to be a completely self-contained and portable chess experience that functions perfectly when opened directly from the local filesystem (file:///), without the need for a web server.
 
-style.css: This file contains all the custom styling rules. It controls the application's visual appearance, including the color themes, board and piece styles, fonts, and the layout of all components.
+Export to Sheets
+## How to Run
+This application is designed to run without a server.
+Download or clone the entire project repository.
+Ensure all folders (js, css, icon, img, lib, sounds, etc.) are in the same root directory.
+Open the index.html file directly in a modern web browser (like Chrome, Firefox, or Edge).
 
-## JavaScript Files (js/) 📜
-The application's logic is split into several JavaScript files, each with a specific responsibility. They are loaded in order of dependency.
+## File Structure
+The code is organized into a clear and modular structure:
 
-js/config.js: A centralized configuration file. It holds all the application's static data, such as the definitions for UI themes, board colors, piece sets, AI difficulty levels, and the list of known chess openings. This separation makes it easy to update settings without altering the core game logic.
+**/ (root)**
+index.html: The main HTML skeleton for the application.
+style.css: The primary stylesheet for custom themes and component styling.
 
-js/ui-elements.js: This file's primary role is to get and store references to all the interactive HTML elements (like buttons, status displays, and selectors). By defining them in one place, it provides a clean and efficient way for all other scripts to access and manipulate these elements.
+**/js/**
+config-data.js & config.js: Centralize all static data and settings.
+debugger.js: The custom error handling and logging service.
+engine.js: Manages the creation and configuration of Stockfish instances.
+analysis-helpers.js: Contains shared, centralized logic for move classification.
+ui-*.js files: A set of files that handle UI elements, feedback, and interactions.
+board.js, game.js, main.js: Control board interactions, core game logic, and application startup.
 
-js/ui-feedback.js: This file is dedicated to functions that update the UI to provide feedback to the user. This includes updating the move history log, the captured pieces display, the game clocks, the evaluation bar, and the game status text (e.g., "White's Turn").
-
-js/ui-interactions.js: This file handles interactive UI components and events. It contains the logic for initializing the sound system, showing pop-up modals (like the pawn promotion choice), managing the draggable debug console, and handling tab switching in the sidebar.
-
-js/board.js: This file controls everything related to the visual chessboard. It initializes the chessboard.js library and manages all direct user interactions with the board, such as clicking squares, dragging and dropping pieces, and drawing arrows or highlights.
-
-js/game.js: This is the core gameplay engine. It uses the chess.js library to manage the logical state of the game, enforce the rules of chess, execute moves for both the player and the AI, and manage the game clock.
-
-js/main.js: This is the main entry point for the application. It kicks everything off when the page loads. It's responsible for initializing all the other modules, setting up the primary event listeners (like keyboard shortcuts), and loading the Stockfish chess engine.
-
-## Analysis Files (analysis/) 📊
-This directory contains the code for the post-game review feature.
-analysis/analysis-core.js: The "brain" of the analysis feature. It takes a completed game and uses the Stockfish engine to evaluate each move, calculating its quality and assigning a classification (e.g., Blunder, Best Move).
-
-analysis/analysis-ui.js: The "face" of the analysis feature. It takes the data processed by analysis-core.js and renders the entire analysis interface, including the interactive move list, the evaluation graph, and the move assessment details.
-
-## Asset Folders (img/, icon/, sounds/) 🖼️🎵
-These directories simply store the application's media assets.
-img/: Contains the image files for all the different chess piece sets.
-icon/: Holds all the UI icons used for buttons and controls.
-sounds/: Contains the .mp3 files for all game sound effects.
+**/analysis/**
+analysis-core.js: The "brain" of the post-game analysis feature.
+analysis-ui.js: The "face" of the analysis room, handling all rendering.
+**/lib/**: Contains all third-party libraries.
+**/icon/**, /img/, /sounds/: Contain all static assets.
