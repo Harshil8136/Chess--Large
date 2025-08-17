@@ -1,0 +1,125 @@
+be sure that all code are well integrated with each other and dont conflict or have issue later
+make sure existing code is there and you make updates in that code
+Always tell what number of file we are running on in this update like 1/4, 2/4
+I will give you code for each file, dont give me explaination or any think JUST ANALYZE, CHECK and SCAN all code.
+
+
+ (root directory)
+├── index.html
+├── README.md
+│
+├── src/
+│   ├── style.css
+│   │
+│   ├── js/
+│   │   ├── config.js
+│   │   ├── config-data.js
+│   │   ├── debugger.js
+│   │   ├── engine.js
+│   │   ├── analysis-helpers.js
+│   │   ├── ui-elements.js
+│   │   ├── ui-feedback.js
+│   │   ├── ui-interactions.js
+│   │   ├── board.js
+│   │   ├── game.js
+│   │   └── main.js
+│   │
+│   └── analysis/
+│       ├── analysis-core.js
+│       └── analysis-ui.js
+│
+└── assets/
+├── icon/
+│   ├── arrow-down-circle.png
+│   ├── arrow-top-right-on-square.png
+│   ├── arrow-uturn-left.png
+│   ├── arrows-right-left.png
+│   ├── backward.png
+│   ├── bars-3-bottom-left.png
+│   ├── bug.png
+│   ├── chevron-left.png
+│   ├── chevron-right.png
+│   ├── classification-best.png
+│   ├── classification-blunder.png
+│   ├── classification-book.png
+│   ├── classification-brilliant.png
+│   ├── classification-excellent.png
+│   ├── classification-good.png
+│   ├── classification-great.png
+│   ├── classification-inaccuracy.png
+│   ├── classification-miss.png
+│   ├── classification-mistake.png
+│   ├── clipboard-document.png
+│   ├── code-bracket.png
+│   ├── document-arrow-down.png
+│   ├── document-arrow-up.png
+│   ├── eye.png
+│   ├── forward.png
+│   ├── funnel.png
+│   ├── light-bulb.png
+│   ├── maximize.png
+│   ├── minimize.png
+│   ├── minus.png
+│   ├── paint-brush.png
+│   ├── plus.png
+│   ├── speaker-wave.png
+│   └── speaker-x-mark.png
+│
+├── img/
+│   └── (This folder contains all piece image sets)
+│
+├── lib/
+│   ├── chart.min.js
+│   ├── chess.min.js
+│   ├── chessboard-1.0.0.min.css
+│   ├── chessboard-1.0.0.min.js
+│   ├── gsap.min.js
+│   ├── howler.min.js
+│   ├── jquery-3.6.0.min.js
+│   ├── sweetalert2.min.js
+│   └── tailwind.min.css
+│
+└── sounds/
+├── capture.mp3
+├── castle.mp3
+├── game-end.mp3
+├── game-start.mp3
+├── move-check.mp3
+├── move-self.mp3
+├── notify.mp3
+└── promote.mp3
+
+Rules List:
+This document defines the core quality standards and operational constraints for the chess application. All development must adhere to these rules.
+
+1. Core Principles
+1.1. Self-Contained Operation: The application must function perfectly as a standalone set of files. It must not depend on any external servers (except for approved CDNs), build tools, or installation procedures. Its functionality must be identical when launched from a local folder or hosted online.
+1.2. Zero-Configuration Environment: All code must be written with the assumption that the end-user has no access to developer tools, a console, or the ability to debug. The application must be robust enough to run without any user intervention.
+1.3. Absolute Stability: The application must never enter an unrecoverable state. Under no circumstances should it crash, freeze, or become unresponsive to user input.
+
+2. Engine and Game Logic
+2.1. AI Responsiveness: The AI engine must never hang. All engine operations must have a hard timeout to prevent indefinite thinking loops. The AI must always produce a legal move promptly according to its difficulty setting.
+2.2. Chess Rule Integrity: The application must flawlessly enforce all rules of chess, including special moves (castling, en passant, promotion) and all draw conditions (stalemate, threefold repetition, fifty-move rule, insufficient material).
+2.3. Engine Integrity: The Stockfish engine (for both gameplay and analysis) must be loaded from a reliable online CDN. This is mandatory to prevent local file access issues (e.g., MIME type errors) and ensure reliable startup every time.
+2.4. Logic-State Purity: The internal chess.js game state must never be allowed to enter an invalid or corrupted state. All moves applied to the logical board must be validated as legal beforehand.
+
+3. User Interface & Experience (UI/UX)
+3.1. Visual-Logic Synchronization: The visual board and all UI elements (captured pieces, clocks, move history) must always be an exact and immediate mirror of the logical game state. There will be no desynchronized states or "ghost" pieces.
+3.2. Graphical Stability: The UI must be free of flickering, sudden layout shifts, or element pop-in during moves, animations, and window resizing. All components must resize smoothly and predictably.
+3.3. Intuitive Controls: Drag-and-drop and click-to-move must work together seamlessly. Selecting a piece must instantly highlight all legal moves. Premoves must be clearly indicated and reliably executed. Action cancellation must be simple (e.g., right-clicking or clicking away).
+3.4. Context-Aware Interface: All buttons and controls must be intelligently enabled or disabled based on the current application state. For example, the "Undo" button must be disabled when it is not the player's turn, and history navigation buttons must be disabled during live play.
+3.5. Clarity of Information: All informational text (game status, opening names, analysis data, clock times) must be accurate and update instantly in response to game events.
+
+4. State Management & Data Persistence
+4.1. Persistent User Settings: All user-configurable settings (themes, sound preferences, AI difficulty, player name, UI state toggles, etc.) must be saved to the browser's localStorage and automatically reloaded on subsequent sessions.
+4.2. Session Resiliency: Critical session data, such as the contents of the debug log, must persist in localStorage across page reloads to aid in tracking issues without developer tools.
+
+5. Technical & Environmental Constraints
+5.1. Serverless Operation: The application must be fully functional when the index.html file is opened directly from the local filesystem (via the file:/// protocol).
+5.2. No Build Steps or Modules: The project must use traditional script loading. The use of ES6 modules (import/export), pre-processors (like Sass), or any form of build step is forbidden.
+5.3. Asset Pathing: All paths to local assets (images, icons, sounds, libraries) must be relative to the index.html file to ensure they work correctly under the file:/// protocol.
+5.4. Cross-Browser Compatibility: The application must function correctly on the latest versions of major web browsers (Chrome, Firefox, Edge).
+
+6. Error Handling & Resilience
+6.1. Graceful Failure: The application must actively catch potential JavaScript errors. An unhandled exception that crashes the application is considered a critical failure.
+6.2. User-Facing Feedback: In the event of a critical, unrecoverable error (e.g., the chess engine fails to load), the user must be presented with a clear, user-friendly error message, rather than a blank or broken page. The message should explain the problem and suggest a solution (e.g., "Please check your internet connection and refresh").
