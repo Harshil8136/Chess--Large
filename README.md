@@ -1,73 +1,50 @@
-**Browser-Based Chess with Deep Analysis ♟️**
-A feature-rich, single-page chess application built with modern web technologies. Play against a powerful AI, analyze your games with move-by-move feedback, and enjoy a fully customizable interface—all running directly in your browser with no server required.
+# HTML/CSS/JS Chess Application
 
-This project is designed to be a completely self-contained and portable chess experience that functions perfectly when opened directly from the local filesystem (file:///), without the need for a web server.
+## 📖 Overview
 
-## Core Features
-**👑 Gameplay & AI**
-Full FIDE Rule Implementation: Powered by chess.js for flawless rule enforcement, including special moves like castling, en passant, and pawn promotion.
-Scalable Stockfish AI: Play against the world-class Stockfish chess engine, running safely in a background Web Worker to keep the UI fast and responsive.
-Adjustable Difficulty: A range of ELO-based difficulty levels, from beginner to grandmaster, perfect for all skill levels.
-Time Controls: Supports multiple time formats, including Unlimited, Blitz (3+2), and Rapid (15+10), with automatic time increment handling.
+This is a complete, client-side chess application built with HTML, CSS, and JavaScript. It runs entirely in the browser without the need for a backend server. The application features a playable game against a configurable Stockfish AI, a detailed post-game analysis room, and a professional-grade logging and debugging system.
 
-**🎨 UI & User Experience**
-Interactive Board: Intuitive piece movement with both drag-and-drop and click-to-move controls.
-Instant Visual Feedback: Clear highlighting for selected pieces, legal moves, premoves, and threatened pieces.
-Live Evaluation Bar: A real-time evaluation bar provides an at-a-glance understanding of the strategic advantage.
-Full Customization: Personalize your experience with a wide array of board themes, piece sets, and UI color themes, with all preferences saved locally.
+The entire project is designed to be self-contained and run directly from the local file system (`file:///` protocol), making it highly portable and easy to use.
 
-**📊 Game Analysis & Review**
-Deep Post-Game Analysis: A powerful analysis engine evaluates every move of your game, providing classifications and insights.
-Rich Move Classification: Moves are categorized with descriptive icons and colors (Brilliant, Great, Best, Mistake, Blunder, etc.).
-Player Accuracy Score: Get a percentage-based accuracy score for both players to summarize overall performance.
-Interactive Evaluation Graph: A dynamic chart visualizes the flow of the game. Click anywhere on the graph to instantly jump to that move.
+---
+## ✨ Features
 
-**⚙️ Advanced Tools**
-FEN & PGN Support: Load any position using a FEN string or export your completed games as a PGN file.
-Advanced In-Game Debugger: A custom-built console log provides detailed application information, including a "Verbose Mode" to view raw engine communication, performance timers, and a global error handler—all designed to work in environments where browser developer tools are disabled.
+* **Play vs. AI:** Play a full game of chess against the Stockfish engine with 12 configurable difficulty levels.
+* **Full Chess Logic:** Flawlessly implements all standard chess rules, including castling, en passant, pawn promotion, and all draw conditions.
+* **Intuitive Interface:** Supports both drag-and-drop and click-to-move, with clear highlighting for legal moves.
+* **Live Feedback:** A real-time evaluation bar and move hints are available during gameplay.
+* **Professional Game Review:** A dedicated "Analysis Room" provides a deep, post-game review with:
+    * Accuracy scores for both players.
+    * An estimated ELO performance for the game.
+    * A move-by-move breakdown of classifications (Best, Blunder, Mistake, etc.).
+    * Identification of "Key Moments" in the game.
+* **Interactive Evaluation Graph:** A visual graph of the game's evaluation, with markers for critical moves and interactive hovering to highlight moves on the board.
+* **Customization:** A settings panel allows for full customization of the UI, board, and piece themes. All preferences are saved locally.
+* **Advanced Debugging:** A persistent, in-game console UI provides detailed, color-coded logs across multiple sessions to track application behavior without needing developer tools.
 
-## Tech Stack & Architecture
-The application is a classic single-page application built with a modular file structure. A key architectural decision is the use of Web Workers to run the Stockfish engine in a separate thread, ensuring the UI never freezes during complex AI calculations. The app intelligently manages multiple engine instances for the AI opponent, live analysis, and hints to prevent resource conflicts.
+---
+## 🚀 How to Run
 
-**Library	Purpose**
-Stockfish	The powerful open-source chess engine, running in a Web Worker.
-chess.js	For all game logic, move validation, and FIDE rule enforcement.
-chessboard.js	Renders the visual, interactive chessboard and handles user input.
-jQuery	Simplifies DOM manipulation and event handling across the application.
-Chart.js	Creates the interactive evaluation graph for the post-game analysis.
-Howler.js	Manages all game sound effects for a reliable, cross-browser experience.
-SweetAlert2	Provides clean, professional-looking pop-up modals and dialogs.
-GSAP	A high-performance animation library for smooth UI effects like the evaluation bar.
-Tailwind CSS	A utility-first CSS framework for building the application's layout and interface.
+This application is designed for simplicity and requires no setup or server.
 
-**Browser-Based Chess with Deep Analysis ♟️**
-A feature-rich, single-page chess application built with modern web technologies. Play against a powerful AI, analyze your games with move-by-move feedback, and enjoy a fully customizable interface—all running directly in your browser with no server required.
-This project is designed to be a completely self-contained and portable chess experience that functions perfectly when opened directly from the local filesystem (file:///), without the need for a web server.
+1.  Ensure you have the complete project directory, including the `src/` and `assets/` folders.
+2.  Open the **`index.html`** file directly in a modern web browser (like Google Chrome, Mozilla Firefox, or Microsoft Edge).
 
-Export to Sheets
-## How to Run
-This application is designed to run without a server.
-Download or clone the entire project repository.
-Ensure all folders (js, css, icon, img, lib, sounds, etc.) are in the same root directory.
-Open the index.html file directly in a modern web browser (like Chrome, Firefox, or Edge).
+That's it. The game will load and be ready to play. An internet connection is only needed for the initial download of the Stockfish engine from its online CDN.
 
-## File Structure
-The code is organized into a clear and modular structure:
-
-**/ (root)**
-index.html: The main HTML skeleton for the application.
-style.css: The primary stylesheet for custom themes and component styling.
-
-**/js/**
-config-data.js & config.js: Centralize all static data and settings.
-debugger.js: The custom error handling and logging service.
-engine.js: Manages the creation and configuration of Stockfish instances.
-analysis-helpers.js: Contains shared, centralized logic for move classification.
-ui-*.js files: A set of files that handle UI elements, feedback, and interactions.
-board.js, game.js, main.js: Control board interactions, core game logic, and application startup.
-
-**/analysis/**
-analysis-core.js: The "brain" of the post-game analysis feature.
-analysis-ui.js: The "face" of the analysis room, handling all rendering.
-**/lib/**: Contains all third-party libraries.
-**/icon/**, /img/, /sounds/: Contain all static assets.
+---
+## 📁 Project Structure
+(root directory)
+├── index.html
+├── README.md
+│
+├── src/
+│   ├── style.css
+│   ├── js/
+│   └── analysis/
+│
+└── assets/
+├── icon/
+├── img/
+├── lib/
+└── sounds/
