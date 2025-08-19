@@ -11,7 +11,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="src/style.css">
+
+    <link rel="stylesheet" href="src/css/base.css">
+    <link rel="stylesheet" href="src/css/board.css">
+    <link rel="stylesheet" href="src/css/components.css">
+    <link rel="stylesheet" href="src/css/log.css">
+    <link rel="stylesheet" href="src/css/analysis.css">
 </head>
 <body class="">
 
@@ -54,15 +59,9 @@
                     <p id="opening-name" class="text-sm text-dark h-6 text-right truncate"></p>
                 </div>
                  <div class="flex justify-end items-center gap-2 mt-2 flex-wrap">
-                    <button id="focus-mode-toggle" class="top-action-icon-btn btn-secondary" title="Focus Mode (Esc)">
-                        <img src="assets/icon/eye.png" alt="Focus Mode"/>
-                    </button>
-                    <button id="hint-button" class="top-action-icon-btn btn-secondary" title="Show Hint (H)">
-                        <img src="assets/icon/light-bulb.png" alt="Show Hint"/>
-                    </button>
-                    <button id="log-shortcut-btn" class="top-action-icon-btn btn-secondary" title="Toggle Floating Log (L)">
-                        <img src="assets/icon/bug.png" alt="Toggle Log"/>
-                    </button>
+                    <button id="focus-mode-toggle" class="top-action-icon-btn btn-secondary" title="Focus Mode (Esc)"><img src="assets/icon/eye.png" alt="Focus Mode"/></button>
+                    <button id="hint-button" class="top-action-icon-btn btn-secondary" title="Show Hint (H)"><img src="assets/icon/light-bulb.png" alt="Show Hint"/></button>
+                    <button id="log-shortcut-btn" class="top-action-icon-btn btn-secondary" title="Toggle Debug Log (L)"><img src="assets/icon/bug.png" alt="Toggle Log"/></button>
                     <button id="undo-button" class="top-action-icon-btn btn-secondary" title="Undo (U)"><img src="assets/icon/arrow-uturn-left.png" alt="Undo"></button>
                     <button id="sound-toggle" class="top-action-icon-btn" title="Toggle Sound (M)"><img id="sound-icon" src="assets/icon/speaker-wave.png" alt="Sound On"></button>
                     <button id="restart-button" class="top-action-btn btn-primary flex-shrink-0" title="New Game (N)">New Game</button>
@@ -73,8 +72,7 @@
                 <button data-tab="moves" class="tab-button flex-1 p-2 text-base font-bold active">Game</button>
                 <button data-tab="settings" class="tab-button flex-1 p-2 text-base font-bold">Settings</button>
                 <button data-tab="console" class="tab-button flex-1 p-2 text-base font-bold relative">
-                    Console
-                    <span id="log-indicator" class="hidden absolute top-1 right-2 w-3 h-3 rounded-full"></span>
+                    Console <span id="log-indicator" class="hidden absolute top-1 right-2 w-3 h-3 rounded-full"></span>
                 </button>
             </nav>
 
@@ -314,29 +312,39 @@
                 <div class="control-divider"></div>
                 <div class="relative">
                     <button id="log-filter-toggle" class="log-control-btn" title="Filter Log Levels"><img src="assets/icon/funnel.png" alt="Filter"></button>
-                    <div id="log-filter-menu" class="hidden absolute right-0 mt-2 w-48 bg-bg-inset-deep rounded-md shadow-lg z-10 p-2 border themed-border">
+                    <div id="log-filter-menu" class="hidden absolute left-0 mt-2 w-48 bg-bg-inset-deep rounded-md shadow-lg z-10 p-2 border themed-border">
                         <h4 class="text-sm font-bold mb-1 px-2 text-light">Visible Log Types</h4>
-                        <div id="log-filter-options" class="space-y-1 text-light"></div>
+                        <div id="log-filter-options" class="space-y-1 text-light text-sm"></div>
                     </div>
                 </div>
                 <button id="log-box-colorize-btn" class="log-control-btn" title="Randomize Header Color"><img src="assets/icon/paint-brush.png" alt="Randomize Color"></button>
-                <button id="log-box-copy" class="log-control-btn" title="Copy Log"><img src="assets/icon/clipboard-document.png" alt="Copy"></button>
-                <button id="log-box-verbose-toggle" class="log-control-btn" title="Toggle Verbose Engine Logs"><img src="assets/icon/code-bracket.png" alt="Verbose"></button>
+                <button id="log-box-verbose-toggle" class="log-control-btn" title="Toggle Verbose Logs (Ctrl+Alt+V)"><img src="assets/icon/code-bracket.png" alt="Verbose"></button>
                 <div class="control-divider"></div>
-                <button id="log-box-popout-toggle" class="log-control-btn" title="Widget Mode"><img src="assets/icon/arrow-top-right-on-square.png" alt="Pop-out"></button>
+                <button id="log-box-copy" class="log-control-btn" title="Copy Filtered Logs"><img src="assets/icon/clipboard-document.png" alt="Copy"></button>
+                <button id="log-box-clear" class="log-control-btn" title="Clear Session Log"><img src="assets/icon/trash.png" alt="Clear"></button>
+                <div class="flex-grow"></div>
+                <button id="log-box-stats-toggle" class="log-control-btn" title="Toggle Stats Drawer"><img src="assets/icon/information-circle.png" alt="Stats"></button>
+                <button id="log-box-reset-size" class="log-control-btn" title="Reset Size & Position (Ctrl+Alt+R)"><img src="assets/icon/resize-default.png" alt="Reset Size"></button>
                 <button id="log-box-minimize-toggle" class="log-control-btn" title="Minimize/Maximize">
                     <img class="icon-minimize" src="assets/icon/minimize.png" alt="Minimize">
                     <img class="icon-maximize hidden" src="assets/icon/maximize.png" alt="Maximize">
                 </button>
-                <div class="flex-grow"></div>
-                <button id="log-box-clear" class="text-xs btn-secondary px-2 py-1 rounded">Clear</button>
-                <button id="log-box-close" class="text-lg font-bold leading-none px-2 rounded hover:bg-red-600" title="Close">&times;</button>
+                <button id="log-box-popout-toggle" class="log-control-btn" title="Widget Mode (Double-click header)"><img src="assets/icon/arrow-top-right-on-square.png" alt="Pop-out"></button>
+                <button id="log-box-close" class="log-control-btn" title="Close Log"><img src="assets/icon/x-mark.png" alt="Close"></button>
             </div>
-            <div id="log-box-widget-restore" class="hidden items-center justify-center w-full h-full cursor-pointer">
-                <img src="assets/icon/bug.png" alt="Restore Log" class="w-6 h-6"/>
+            <div id="log-box-widget-restore" class="hidden"><img src="assets/icon/bug.png" alt="Restore Log" class="w-8 h-8"/></div>
+        </div>
+        
+        <div id="log-stats-drawer">
+            <div class="stats-grid p-2 border-b themed-border text-xs">
+                <div id="log-fps-panel" class="stat-item"></div>
+                <div id="log-memory-panel" class="stat-item"></div>
+                <div id="log-session-panel" class="stat-item"></div>
+                <div id="log-github-panel" class="stat-item"></div>
             </div>
         </div>
-        <div id="log-box-content" class="p-2 text-sm text-dark font-mono overflow-y-auto flex-grow"></div>
+
+        <div id="log-box-content" class="p-2 text-sm font-mono flex-grow"></div>
         <div id="log-box-resize-handle" class="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"></div>
     </div>
     
@@ -357,16 +365,19 @@
     <script src="src/js/config-data.js"></script>
     <script src="src/js/config.js"></script>
     <script src="src/js/ui-elements.js"></script>
+    <script src="src/js/analysis-helpers.js"></script>
+    <script src="src/js/engine.js"></script>
     <script src="src/js/ui-feedback.js"></script>
     <script src="src/js/ui-interactions.js"></script>
     <script src="src/js/board.js"></script>
-    <script src="src/js/engine.js"></script>
-    <script src="src/js/game-review.js"></script>
-    <script src="src/js/analysis-helpers.js"></script>
     <script src="src/js/game.js"></script>
     <script src="src/js/main.js"></script>
+    <script src="src/js/game-review.js"></script>
 
     <script src="src/analysis/analysis-core.js"></script>
+    <script src="src/analysis/analysis-board.js"></script>
+    <script src="src/analysis/analysis-chart.js"></script>
     <script src="src/analysis/analysis-ui.js"></script>
+
 </body>
 </html>
