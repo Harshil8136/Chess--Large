@@ -125,4 +125,17 @@ This document defines the core quality standards and operational constraints for
 
 6. Error Handling & Resilience
 6.1. Graceful Failure: The application must actively catch potential JavaScript errors. An unhandled exception that crashes the application is considered a critical failure.
-6.2. User-Facing Feedback: In the event of a critical, unrecoverable error (e.g., the chess engine fails to load), the user must be presented with a clear, user-friendly error message, rather than a blank or broken page. The message should explain the problem and suggest a solution (e.g., "Please check your internet connection and refresh").
+6.2. User-Facing Feedback: In the event of a critical, unrecoverable error (e.g., the chess engine fails to load), the user must be presented with a clear, user-friendly error message, rather than a blank or broken page. 
+The message should explain the problem and suggest a solution (e.g., "Please check your internet connection and refresh").
+
+7.1. Strict Character Limit: All individual source code files (e.g., .js, .css, .html) must be kept under a strict limit of 15,000 characters. This is to ensure reliable processing and modification by AI code generation tools, which have been observed to produce errors or incomplete output when handling larger files.
+7.2. Single Responsibility Principle: To adhere to the character limit, every file must be designed with a single, clear responsibility. Logic should be broken down into smaller, more focused modules.
+7.3. HTML Management: To keep index.html minimal for frequent updates, large blocks of HTML markup must be stored as JavaScript template literals in a dedicated file (ui-html.js). This content is to be injected into the DOM synchronously at runtime. This pattern is the only approved method for managing large HTML structures.
+
+8. Runtime Integrity and Initialization Order
+This rule is designed to prevent the class of loading errors and race conditions we have encountered.
+
+8.1. Strict Script Load Order: The index.html file must load all scripts in a precise and logical order. Scripts that define data or components (e.g., ui-html.js) must always be loaded before scripts that use them (e.g., ui-loader.js, ui-elements.js). The application's main logic (main.js) must be loaded last.
+8.2. Deferred DOM Interaction: JavaScript files must not attempt to select or interact with DOM elements in their global scope. Doing so creates a race condition, as the script may execute before the HTML is present. All DOM selections and event listener attachments must be deferred until after the main DOM structure is guaranteed to be present, 
+typically by placing them within initialization functions (e.g., initElements(), init()) that are called only after the page is fully constructed.
+8.3. Prohibition of Asynchronous HTML Loading: Dynamically loading HTML markup from separate .html files using asynchronous methods like fetch() is forbidden. This pattern has been proven unreliable under the file:/// protocol due to browser security policies and must be avoided in favor of the synchronous HTML-in-JS pattern described in Rule 7.3.
