@@ -1,0 +1,61 @@
+/* ==========================================================================
+   ANIMATIONS & TRANSITIONS
+   ========================================================================== */
+
+/* 1. Keyframe Definitions (Defined globally) */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+
+/* 2. Animation Utility Classes 
+   Wrapped in a media query to respect user's motion preferences.
+*/
+
+@media (prefers-reduced-motion: no-preference) {
+    .animate-fade-in {
+        animation: fadeIn 400ms ease-in-out forwards;
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 500ms ease-out forwards;
+    }
+
+    .animate-pulse {
+        animation: pulse 300ms ease-in-out;
+    }
+
+    /* Add a staggered animation effect for children of a container */
+    .stagger-children > * {
+        opacity: 0; /* Initially hide children */
+        animation: fadeInUp 500ms ease-out forwards;
+    }
+
+    /* This is a simple way to create a staggered delay.
+      More complex scenarios might require JS.
+    */
+    .stagger-children > *:nth-child(1) { animation-delay: 100ms; }
+    .stagger-children > *:nth-child(2) { animation-delay: 200ms; }
+    .stagger-children > *:nth-child(3) { animation-delay: 300ms; }
+    .stagger-children > *:nth-child(4) { animation-delay: 400ms; }
+    .stagger-children > *:nth-child(5) { animation-delay: 500ms; }
+}

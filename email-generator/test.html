@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Email Generator Pro (Final Assembled)</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    <style>
+        /* ========================================================================== */
+        /* css/theme.css                                                              */
+        /* ========================================================================== */
+        :root {
+            --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px; --space-xl: 32px;
+            --radius-md: 8px; --radius-lg: 12px; --border-width: 1px;
+            --transition-speed: 200ms;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-focus-ring: 0 0 0 3px;
+            --bg-main: #f3f4f6; --bg-panel: #ffffff; --bg-input: #ffffff; --bg-hover: #f9fafb;
+            --text-primary: #111827; --text-secondary: #6b7280; --text-placeholder: #9ca3af; --text-on-accent: #ffffff;
+            --border-default: #d1d5db; --border-subtle: #e5e7eb;
+            --accent-primary: #2563eb; --accent-primary-hover: #1d4ed8; --accent-success: #16a34a; --accent-focus-ring: rgba(59, 130, 246, 0.4);
+            --color-case-number: #cfd4ff; --color-customer-name: #89e3d9; --color-account-number: #ffc46b; --color-biller-name: #ff82b2;
+            --color-phone: #7359a6; --color-confirmation: #3a9bdc; --color-date: #f8a1f0; --color-amount: #4eccc4; --color-generic: #a45fdc;
+        }
+        body.dark-mode {
+            --bg-main: #111827; --bg-panel: #1f2937; --bg-input: #374151; --bg-hover: #374151;
+            --text-primary: #f9fafb; --text-secondary: #9ca3af; --text-placeholder: #6b7280;
+            --border-default: #4b5563; --border-subtle: #374151;
+            --accent-primary: #3b82f6; --accent-primary-hover: #60a5fa; --accent-success: #22c55e; --accent-focus-ring: rgba(96, 165, 250, 0.5);
+        }
+
+        /* ========================================================================== */
+        /* css/layout.css                                                             */
+        /* ========================================================================== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; }
+        body { font-family: var(--font-sans); background-color: var(--bg-main); color: var(--text-primary); line-height: 1.6; font-size: 16px; transition: background-color var(--transition-speed) ease-in-out, color var(--transition-speed) ease-in-out; }
+        #app-container { display: grid; grid-template-areas: "header header header" "controls editor context"; grid-template-columns: minmax(420px, 1fr) 1.75fr 1fr; grid-template-rows: auto 1fr; gap: var(--space-lg); padding: var(--space-lg); height: 100vh; width: 100%; max-width: 1800px; margin: 0 auto; }
+        .app-header { grid-area: header; display: flex; justify-content: space-between; align-items: center; padding: 0 var(--space-sm); }
+        .app-title { font-size: 1.5rem; font-weight: 700; }
+        .app-title strong { color: var(--accent-primary); font-weight: 700; }
+        .panel { background-color: var(--bg-panel); border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: var(--space-lg); display: flex; flex-direction: column; gap: var(--space-xl); transition: background-color var(--transition-speed) ease-in-out, border-color var(--transition-speed) ease-in-out; overflow-y: auto; height: 100%; }
+        #controls-panel { grid-area: controls; }
+        #editor-panel { grid-area: editor; gap: var(--space-sm); }
+        #context-panel { grid-area: context; }
+        @media (max-width: 1200px) { #app-container { display: flex; flex-direction: column; height: auto; padding: var(--space-md); } .panel { height: auto; margin-bottom: var(--space-lg); } .app-header { margin-bottom: var(--space-md); } }
+
+        /* ========================================================================== */
+        /* css/components.css                                                         */
+        /* ========================================================================== */
+        .header-actions { display: flex; align-items: center; gap: var(--space-sm); }
+        .user-greeting .greeting-text { color: var(--text-secondary); }
+        #user-name { color: var(--text-primary); font-weight: 600; padding: var(--space-xs); border-radius: var(--radius-md); }
+        #user-name[contenteditable="true"] { outline: none; box-shadow: inset 0 0 0 var(--border-width) var(--accent-primary); background-color: var(--bg-hover); }
+        .control-group { display: flex; flex-direction: column; gap: var(--space-sm); }
+        .control-group.actions-group { margin-top: auto; padding-top: var(--space-lg); gap: var(--space-md); }
+        label { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); }
+        input[type="text"], input[type="email"], input[type="search"], select, textarea { width: 100%; padding: 10px 14px; background-color: var(--bg-input); color: var(--text-primary); border: var(--border-width) solid var(--border-default); border-radius: var(--radius-md); font-size: 1rem; font-family: var(--font-sans); transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent-primary); box-shadow: var(--shadow-focus-ring) var(--accent-focus-ring); }
+        input::placeholder, textarea::placeholder { color: var(--text-placeholder); }
+        .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
+        .shuffle-btn { width: 100%; padding: 12px var(--space-md); font-size: 1rem; font-weight: 600; color: var(--text-on-accent); background-color: var(--accent-primary); border: none; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: var(--space-sm); transition: all var(--transition-speed) ease; }
+        .shuffle-btn:hover { background-color: var(--accent-primary-hover); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .secondary-btn { width: 100%; padding: 10px var(--space-sm); font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); background-color: transparent; border: var(--border-width) solid var(--border-default); border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: var(--space-sm); transition: all var(--transition-speed) ease; }
+        .secondary-btn:hover { background-color: var(--bg-hover); border-color: var(--accent-primary); color: var(--accent-primary); }
+        .copy-btn { background-color: var(--bg-panel); color: var(--text-secondary); border: var(--border-width) solid var(--border-default); padding: var(--space-sm) 12px; font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: var(--space-sm); transition: all var(--transition-speed) ease; }
+        .copy-btn:hover { background-color: var(--bg-hover); color: var(--accent-primary); border-color: var(--accent-primary); }
+        .icon-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: var(--space-sm); border-radius: 50%; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease; }
+        .icon-btn:hover { background-color: var(--bg-hover); color: var(--text-primary); }
+        .output-card { display: flex; flex-direction: column; gap: var(--space-sm); }
+        .card-stretch { flex-grow: 1; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; }
+        .card-header label { padding: 2px 8px; border-radius: 4px; color: #000; }
+        #label-to { background-color: var(--color-customer-name); }
+        #label-subject { background-color: var(--color-generic); }
+        #label-case-comment { background-color: var(--color-case-number); }
+        input[readonly], textarea[readonly] { background-color: var(--bg-main); cursor: default; }
+        .editor-container { flex-grow: 1; display: flex; flex-direction: column; border: var(--border-width) solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; }
+        .ql-editor { font-family: var(--font-sans); font-size: 1rem; background-color: var(--bg-input); }
+        .signature-placeholder { margin-top: var(--space-lg); padding: var(--space-md); border: var(--border-width) dashed var(--border-default); border-radius: var(--radius-md); background-color: var(--bg-main); color: var(--text-secondary); font-size: 0.9rem; font-style: italic; text-align: center; user-select: none; }
+        .highlight { padding: 1px 5px; border-radius: 4px; font-weight: 500; color: #000; cursor: default; outline: none; }
+        .highlight[contenteditable="false"] { display: inline-block; border: 1px solid transparent; }
+        .highlight[contenteditable="false"]:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 2px var(--accent-focus-ring); }
+        .highlight-case_number { background-color: var(--color-case-number); }
+        .highlight-customer_name, .highlight-biller_contact_name { background-color: var(--color-customer-name); }
+        .highlight-customer_account_number { background-color: var(--color-account-number); }
+        .highlight-biller_name { background-color: var(--color-biller-name); }
+        .highlight-biller_phone { background-color: var(--color-phone); }
+        .highlight-agent_name, .highlight-processor_name { background-color: var(--color-generic); }
+        .tippy-box { background-color: var(--text-primary) !important; color: var(--bg-panel) !important; border-radius: var(--radius-md) !important; font-size: 0.85rem !important; font-weight: 600 !important; box-shadow: var(--shadow-md) !important; }
+        .tippy-arrow { color: var(--text-primary) !important; }
+        .tippy-box[data-theme~='success'] { background-color: var(--accent-success) !important; color: var(--text-on-accent) !important; }
+        .tippy-box[data-theme~='success'] .tippy-arrow { color: var(--accent-success) !important; }
+
+        /* ========================================================================== */
+        /* css/animations.css                                                         */
+        /* ========================================================================== */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @media (prefers-reduced-motion: no-preference) {
+            .animate-fade-in { animation: fadeIn 400ms ease-in-out forwards; }
+            .animate-fade-in-up { animation: fadeInUp 500ms ease-out forwards; }
+            .animate-pulse { animation: pulse 300ms ease-in-out; }
+            .stagger-children > * { opacity: 0; animation: fadeInUp 500ms ease-out forwards; }
+            .stagger-children > *:nth-child(1) { animation-delay: 100ms; }
+            .stagger-children > *:nth-child(2) { animation-delay: 200ms; }
+            .stagger-children > *:nth-child(3) { animation-delay: 300ms; }
+            .stagger-children > *:nth-child(4) { animation-delay: 400ms; }
+            .stagger-children > *:nth-child(5) { animation-delay: 500ms; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <header class="app-header">
+            <h1 class="app-title">Email Generator <strong>Pro</strong></h1>
+            <div class="header-actions">
+                <div class="user-greeting" id="user-greeting">
+                    <span class="greeting-text">Hi, <span id="user-name" contenteditable="false" data-tippy-content="Click to edit your name">Guest</span>!</span>
+                    <button id="edit-name-btn" class="icon-btn" data-tippy-content="Edit Name" aria-label="Edit agent name">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                </div>
+                <button id="theme-toggle-btn" class="icon-btn" data-tippy-content="Toggle Theme" aria-label="Toggle dark or light theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
+        <aside id="controls-panel" class="panel">
+            <section class="control-group">
+                <label for="recipient-email">Recipient Email</label>
+                <input type="email" id="recipient-email" name="recipient_email" placeholder="e.g., customer@example.com">
+            </section>
+            <section class="control-group">
+                <label for="template-select">Select a Template</label>
+                <input type="search" id="template-search" placeholder="Search templates..." aria-label="Search for an email template">
+                <div class="select-wrapper">
+                    <select id="template-select">
+                        <option value="" disabled selected>Choose a template...</option>
+                    </select>
+                </div>
+            </section>
+            <div id="dynamic-fields-container"></div>
+            <section class="control-group actions-group">
+                 <button id="shuffle-btn" class="shuffle-btn" data-tippy-content="Generate a new variation of the selected template">
+                    <i class="fa-solid fa-shuffle"></i>
+                    Shuffle Variation
+                </button>
+                <div class="button-row">
+                    <button id="export-btn" class="secondary-btn" data-tippy-content="Save all current field values to a file">
+                        <i class="fa-solid fa-file-export"></i> Export Session
+                    </button>
+                    <button id="import-btn" class="secondary-btn" data-tippy-content="Load field values from a file">
+                        <i class="fa-solid fa-file-import"></i> Import Session
+                    </button>
+                </div>
+            </section>
+        </aside>
+        <main id="editor-panel" class="panel">
+            <div class="output-card card-stretch">
+                 <div class="card-header">
+                    <label for="output-body-editor">Email Body:</label>
+                    <button class="copy-btn" data-target="output-body-editor" data-shortcut="Alt+1" aria-label="Copy email body (Alt + 1)" data-tippy-content="Copy formatted email body">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div id="output-body-editor" class="editor-container"></div>
+            </div>
+        </main>
+        <aside id="context-panel" class="panel">
+            <div class="output-card">
+                <div class="card-header">
+                    <label id="label-to" for="output-to">To:</label>
+                    <button class="copy-btn" data-target="output-to" aria-label="Copy recipient email" data-tippy-content="Copy recipient email">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                </div>
+                <input type="text" id="output-to" readonly placeholder="Recipient email...">
+            </div>
+            <div class="output-card">
+                <div class="card-header">
+                    <label id="label-subject" for="output-subject">Subject:</label>
+                    <button class="copy-btn" data-target="output-subject" data-shortcut="Alt+2" aria-label="Copy subject line (Alt + 2)" data-tippy-content="Copy subject line">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                </div>
+                <input type="text" id="output-subject" readonly placeholder="Generated subject line..." aria-live="polite">
+            </div>
+            <div class="output-card">
+                <div class="card-header">
+                    <label id="label-case-comment" for="output-case-comment">Internal Case Comment:</label>
+                    <button class="copy-btn" data-target="output-case-comment" data-shortcut="Alt+3" aria-label="Copy case comment (Alt + 3)" data-tippy-content="Copy case comment">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                </div>
+                <textarea id="output-case-comment" readonly rows="8" placeholder="Generated case comment for internal notes..." aria-live="polite"></textarea>
+            </div>
+        </aside>
+    </div>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+
+    <script>
+        // ==========================================================================
+        // js/all-templates.js
+        // ==========================================================================
+        window.App = window.App || {};
+        App.templateCategories = App.templateCategories || {};
+        App.templateCategories.billerComms = [
+            { id: 'acknowledge-biller-request', name: 'Biller - Acknowledge Request', category: 'Biller Communications', fields: [ { key: 'biller_contact_name', label: 'Biller Contact Name', type: 'text', placeholder: 'e.g., Rickaye Edwards', hml_field: '{{{Case.Contact.Name}}}' }, { key: 'case_number', label: 'Case Number', type: 'text', placeholder: 'e.g., 06681513', hml_field: '{{{Case.CaseNumber}}}' }, ], subject: { variants: [ 'Re: Your Request - Case #{{{Case.CaseNumber}}}' ] }, body: [ { block: 'Greeting', variants: [ '<p>Hello {{{Case.Contact.Name}}},</p>' ] }, { block: 'Acknowledgement', variants: [ '<p>Thank you for reaching out. My name is {{{Case.Owner.Name}}}, and I have received your request regarding case #{{{Case.CaseNumber}}}.</p><p>I am looking into this now and will get back to you with an update very soon.</p>', '<p>This email is to confirm I\'ve received your inquiry for case #{{{Case.CaseNumber}}}. I am currently reviewing it and will provide a substantive update shortly.</p>' ] }, { block: 'Signature', variants: [ '<hr><div class="signature-placeholder"><i class="fa-solid fa-paste"></i>&nbsp; Paste formatted signature here</div>' ] } ], caseComment: { variants: [ 'Acknowledged request from biller contact. Emailed to advise that the case is under review and an update will follow.', 'Sent initial acknowledgement to biller. Case is pending action.' ] } },
+            { id: 'internal-neg-file-request', name: 'Internal - Request Negative File Removal', category: 'Biller Communications', fields: [ { key: 'case_number', label: 'SalesForce Case #', type: 'text', placeholder: 'e.g., 00123456', hml_field: '{{{Case.CaseNumber}}}' }, { key: 'customer_account_number', label: 'Customer Account #', type: 'text', placeholder: 'e.g., 987654321', hml_field: '{{{Case.Account.AccountNumber}}}' }, { key: 'biller_name', label: 'Biller TLA', type: 'text', placeholder: 'e.g., GRIN', hml_field: '{{{Case.Account.Name}}}' }, { key: 'processor_name', label: 'Processor', type: 'text', placeholder: 'e.g., Braintree', hml_field: '{{{Processor_Name__c}}}' }, ], subject: { variants: [ 'PT - Negative File Removal Request - Case #{{{Case.CaseNumber}}}' ] }, body: [ { block: 'Main Body', variants: [ '<p>Hi Team,</p><p>Please assist with a removal of the negative file for the following:</p><ul><li>SalesForce Case #: {{{Case.CaseNumber}}}</li><li>Biller TLA: {{{Case.Account.Name}}}</li><li>Processor: {{{Processor_Name__c}}}</li><li>Customer Account #: {{{Case.Account.AccountNumber}}}</li></ul><p>Thank you,</p><p>{{{Case.Owner.Name}}}</p>' ] } ], caseComment: { variants: [ 'Submitted internal request to the Negative File team to unblock account {{{Case.Account.AccountNumber}}}.', 'Sent unblocking request for case {{{Case.CaseNumber}}} to the appropriate internal team.' ] } }
+        ];
+        App.templateCategories.followUps = [ { id: 'follow-up-48hr-closure', name: 'Follow-Up - 48hr Closure Notice', category: 'Follow-Ups', fields: [ { key: 'customer_name', label: 'Customer Name', type: 'text', placeholder: 'e.g., Amelia Wilson', hml_field: '{{{Case.Contact.Name}}}' }, { key: 'case_number', label: 'Case Number', type: 'text', placeholder: 'e.g., 06649572', hml_field: '{{{Case.CaseNumber}}}' }, ], subject: { variants: [ 'Following Up on Your Request - Case #{{{Case.CaseNumber}}}', 'Final Follow-Up Regarding Case #{{{Case.CaseNumber}}}', ] }, body: [ { block: 'Greeting', variants: [ '<p>Hello {{{Case.Contact.Name}}},</p>' ] }, { block: 'Reminder', variants: [ '<p>I\'m reaching out to follow up on your recent inquiry, case number {{{Case.CaseNumber}}}. To proceed, we are still waiting for the information we previously requested.</p>', '<p>This is a follow-up regarding your case #{{{Case.CaseNumber}}}. We have not yet received the information needed to continue our investigation.</p>' ] }, { block: 'Closure Notice', variants: [ '<p>If you no longer need assistance, please let us know. If we don\'t hear from you within the next <strong>48 hours</strong>, we will assume the issue is resolved and close this case.</p>', '<p>Should you still require help, please reply with the requested details. Otherwise, this case will be closed in the next 2 business days due to no response.</p>' ] }, { block: 'Closing', variants: [ '<p>Thank you.</p>' ] }, { block: 'Signature', variants: [ '<hr><div class="signature-placeholder"><i class="fa-solid fa-paste"></i>&nbsp; Paste formatted signature here</div>' ] } ], caseComment: { variants: [ 'Sent follow-up email. Advised case will be closed in 48hrs if no response is received. Case pending customer response.', 'Notified customer that case will be closed due to inactivity if required information is not provided within 2 business days.' ] } } ];
+        App.templateCategories.infoGathering = [ { id: 'request-general-info', name: 'Info - Request General Details', category: 'Information Gathering', fields: [ { key: 'customer_name', label: 'Customer Name', type: 'text', placeholder: 'e.g., Jane Doe', hml_field: '{{{Case.Contact.Name}}}' }, { key: 'case_number', label: 'Case Number', type: 'text', placeholder: 'e.g., 06653743', hml_field: '{{{Case.CaseNumber}}}' }, ], subject: { variants: [ 'Regarding Your Inquiry - Case #{{{Case.CaseNumber}}}', 'More Information Needed for Your Request - Case #{{{Case.CaseNumber}}}', ] }, body: [ { block: 'Greeting', variants: [ '<p>Hello {{{Case.Contact.Name}}},</p>' ] }, { block: 'Introduction', variants: [ '<p>Thank you for reaching out to Paymentus. My name is {{{Case.Owner.Name}}}, and I\'ll be assisting you with your request, case number {{{Case.CaseNumber}}}.</p>', ] }, { block: 'Core Request', variants: [ '<p>To help us investigate, could you please provide a few more details? We will need:</p><ul><li>The name of the company you paid the bill to</li><li>The account number associated with the payment</li><li>The date and amount of the payment in question</li></ul>', '<p>To proceed with your request, please reply with the following information:</p><ul><li>The name of your service provider</li><li>Your account number</li><li>The date and amount of the transaction</li></ul>', ] }, { block: 'Closing', variants: [ '<p>Once we have these details, we can look into this for you. You can also call us at 1-800-420-1663 to provide this information securely.</p>' ] }, { block: 'Signature', variants: [ '<hr><div class="signature-placeholder"><i class="fa-solid fa-paste"></i>&nbsp; Paste formatted signature here</div>' ] } ], caseComment: { variants: [ 'Emailed customer to request additional details (biller, account #, amount, date). Case pending customer response.', 'Sent request for information to customer to proceed with their inquiry.' ] } }, { id: 'request-biller-info', name: 'Info - Request Biller Name', category: 'Information Gathering', fields: [ { key: 'customer_name', label: 'Customer Name', type: 'text', placeholder: 'e.g., Wendy Bangs', hml_field: '{{{Case.Contact.Name}}}' }, { key: 'case_number', label: 'Case Number', type: 'text', placeholder: 'e.g., 06630485', hml_field: '{{{Case.CaseNumber}}}' }, ], subject: { variants: [ 'Action Required: Your Inquiry - Case #{{{Case.CaseNumber}}}', 'Regarding Your Request - Case #{{{Case.CaseNumber}}}', ] }, body: [ { block: 'Greeting', variants: [ '<p>Hello {{{Case.Contact.Name}}},</p>' ] }, { block: 'Introduction', variants: [ '<p>Thank you for your message. My name is {{{Case.Owner.Name}}}, and I\'m assisting with your inquiry, case #{{{Case.CaseNumber}}}.</p>' ] }, { block: 'Core Request', variants: [ '<p>To help you get this resolved, could you please provide the full name of your service provider (e.g., "City of Sandston Public Works," etc.) and your account number with them?</p>', '<p>To direct you to the right place, I\'ll need a little more information. Could you please reply with the name of your biller or service provider?</p>', ] }, { block: 'Closing', variants: [ '<p>Once you provide that information, I can help you find their contact details so you can quickly complete your request.</p>' ] }, { block: 'Signature', variants: [ '<hr><div class="signature-placeholder"><i class="fa-solid fa-paste"></i>&nbsp; Paste formatted signature here</div>' ] } ], caseComment: { variants: [ 'Emailed customer to request the name of their service provider and account number.', 'Sent request for biller information to customer to assist with their inquiry.' ] } }, ];
+        App.templateCategories.redirection = [ { id: 'redirect-to-biller-general', name: 'Redirect - General (Refund/Cancel/Acct Change)', category: 'Redirection', fields: [ { key: 'customer_name', label: 'Customer Name', type: 'text', placeholder: 'e.g., Jessica Hill', hml_field: '{{{Case.Contact.Name}}}' }, { key: 'case_number', label: 'Case Number', type: 'text', placeholder: 'e.g., 06648185', hml_field: '{{{Case.CaseNumber}}}' }, { key: 'biller_name', label: 'Biller / Service Provider Name', type: 'text', placeholder: 'e.g., Waste Management', hml_field: '{{{Case.Account.Name}}}' }, { key: 'biller_phone', label: 'Biller\'s Phone Number', type: 'text', placeholder: 'e.g., 866-909-4458', hml_field: '{{{Case.Account.Phone}}}' }, ], subject: { variants: [ 'Information Regarding Your {{{Case.Account.Name}}} Account - Case #{{{Case.CaseNumber}}}', 'Your Inquiry for {{{Case.Account.Name}}} - Case #{{{Case.CaseNumber}}}', ] }, body: [ { block: 'Greeting', variants: [ '<p>Hello {{{Case.Contact.Name}}},</p>' ] }, { block: 'Introduction', variants: [ '<p>Thank you for contacting us. My name is {{{Case.Owner.Name}}}, and I\'m assisting with your inquiry for case #{{{Case.CaseNumber}}}.</p>' ] }, { block: 'Role Clarification', variants: [ '<p>As Paymentus is a third-party payment processor for {{{Case.Account.Name}}}, all account management tasks such as refunds, cancellations, or account detail changes must be handled directly by them.</p>', '<p>We process payments on behalf of {{{Case.Account.Name}}}, but for security and privacy, we do not have access to manage your account directly. For assistance with refunds or cancellations, you will need to contact them.</p>', ] }, { block: 'Call to Action', variants: [ '<p>Please contact the {{{Case.Account.Name}}} customer service team directly at <strong>{{{Case.Account.Phone}}}</strong>. They will be able to assist you further.</p>' ] }, { block: 'Signature', variants: [ '<hr><div class="signature-placeholder"><i class="fa-solid fa-paste"></i>&nbsp; Paste formatted signature here</div>' ] } ], caseComment: { variants: [ 'Advised customer to contact {{{Case.Account.Name}}} at {{{Case.Account.Phone}}} for their request. Clarified Paymentus role as a payment processor.', 'Redirected customer to their service provider, {{{Case.Account.Name}}}, to handle their inquiry.' ] } }, { id: 'redirect-to-biller-autopay', name: 'Redirect - AutoPay / Payment Amount Change', category: 'Redirection', fields: [ { key: 'customer_name', label: 'Customer Name', type: 'text', placeholder: 'e.g., Wanda Mandzuk', hml_field: '{{{Case.Contact.Name}}}' }, { key: 'case_number', label: 'Case Number', type: 'text', placeholder: 'e.g., 06687861', hml_field: '{{{Case.CaseNumber}}}' }, { key: 'biller_name', label: 'Biller / Service Provider Name', type: 'text', placeholder: 'e.g., BC Hydro', hml_field: '{{{Case.Account.Name}}}' }, ], subject: { variants: [ 'Managing Your {{{Case.Account.Name}}} AutoPay Settings - Case #{{{Case.CaseNumber}}}', 'Your {{{Case.Account.Name}}} Payment Inquiry - Case #{{{Case.CaseNumber}}}', ] }, body: [ { block: 'Greeting', variants: [ '<p>Hi {{{Case.Contact.Name}}},</p>' ] }, { block: 'Introduction', variants: [ '<p>My name is {{{Case.Owner.Name}}}, following up on your inquiry about changing your monthly payment amounts for {{{Case.Account.Name}}} (Case #{{{Case.CaseNumber}}}).</p>' ] }, { block: 'Explanation', variants: [ '<p>Changes to recurring payment amounts and schedules must be made through the customer portal you have set up. As the payment processor, we do not have access to modify your AutoPay settings directly.</p>', ] }, { block: 'Instruction', variants: [ '<p>You can manage your settings by logging into the {{{Case.Account.Name}}} customer portal. Once logged in, look for the "AutoPay" or "Recurring Payments" section to make your desired edits.</p>', '<p>To update your payment details, please log into your account on the {{{Case.Account.Name}}} website. From there, you should find an option for "Scheduled Payments" or "AutoPay" where you can adjust the amounts.</p>', ] }, { block: 'Signature', variants: [ '<hr><div class="signature-placeholder"><i class="fa-solid fa-paste"></i>&nbsp; Paste formatted signature here</div>' ] } ], caseComment: { variants: [ 'Advised customer on how to manage their AutoPay settings directly via the {{{Case.Account.Name}}} customer portal.', 'Redirected customer to the biller\'s online portal to manage their recurring payment details.' ] } }, ];
+        App.templateCategories.statusUpdates = [ { id: 'password-reset-complete', name: 'Status - Password Reset Complete', category: 'Status Updates', fields: [ { key: 'customer_name', label: 'Customer Name', type: 'text', placeholder: 'e.g., Maria Villagrana', hml_field: '{{{Case.Contact.Name}}}' }, { key: 'case_number', label: 'Case Number', type: 'text', placeholder: 'e.g., 06645585', hml_field: '{{{Case.CaseNumber}}}' }, ], subject: { variants: [ 'Your Password Has Been Reset - Case #{{{Case.CaseNumber}}}', 'Confirmation of Your Password Reset - Case #{{{Case.CaseNumber}}}', ] }, body: [ { block: 'Greeting', variants: [ '<p>Hello {{{Case.Contact.Name}}},</p>', '<p>Hi {{{Case.Contact.Name}}},</p>' ] }, { block: 'Confirmation', variants: [ '<p>I hope this message finds you well. I would like to inform you that the password for your account has been successfully reset.</p><p>I have sent you a separate email containing the temporary credentials. Please note, this password will expire in 24 hours.</p>', '<p>This email is to confirm that your account password has been reset. A second email with a temporary password has been sent to your registered address and will expire in 24 hours.</p>', ] }, { block: 'Closing', variants: [ '<p>If you encounter any challenges, please feel free to call us at 1-800-420-1663 for assistance.</p>' ] }, { block: 'Signature', variants: [ '<hr><div class="signature-placeholder"><i class="fa-solid fa-paste"></i>&nbsp; Paste formatted signature here</div>' ] } ], caseComment: { variants: [ 'Processed password reset and sent confirmation email. Advised customer of separate email with temporary credentials.', 'Completed password reset. Notified customer to check for temporary password email.' ] } }, { id: 'neg-file-removal-initiated', name: 'Status - Negative File Removal Initiated', category: 'Status Updates', fields: [ { key: 'biller_contact_name', label: 'Biller Contact Name', type: 'text', placeholder: 'e.g., Lisa Jacobson', hml_field: '{{{Case.Contact.Name}}}' }, { key: 'case_number', label: 'Case Number', type: 'text', placeholder: 'e.g., 06586450', hml_field: '{{{Case.CaseNumber}}}' }, ], subject: { variants: [ 'Update on Your Request - Case #{{{Case.CaseNumber}}}', 'Regarding Your Negative File Request - Case #{{{Case.CaseNumber}}}' ] }, body: [ { block: 'Greeting', variants: [ '<p>Hello {{{Case.Contact.Name}}},</p>' ] }, { block: 'Introduction', variants: [ '<p>Thank you for your patience. My name is {{{Case.Owner.Name}}}, and I\'m providing an update on your request for case #{{{Case.CaseNumber}}}.</p>' ] }, { block: 'Action & Timeline', variants: [ '<p>We have submitted the request to our payment processor to remove the account from the Negative File. Please note that this process typically takes <strong>3 to 5 business days</strong> to complete.</p>', '<p>The request to unblock the account has been sent to our payment processor. The standard turnaround time for this is 3 to 5 business days.</p>' ] }, { block: 'Closing', variants: [ '<p>I will reach out to you as soon as I have confirmation that the process is complete.</p>' ] }, { block: 'Signature', variants: [ '<hr><div class="signature-placeholder"><i class="fa-solid fa-paste"></i>&nbsp; Paste formatted signature here</div>' ] } ], caseComment: { variants: [ 'Submitted negative file removal request to processor. Advised biller of 3-5 business day timeline.', 'Informed biller that unblocking request is in progress with a 3-5 day ETA.' ] } }, { id: 'neg-file-removal-complete', name: 'Status - Negative File Removal Complete', category: 'Status Updates', fields: [ { key: 'biller_contact_name', label: 'Biller Contact Name', type: 'text', placeholder: 'e.g., Tange Cox', hml_field: '{{{Case.Contact.Name}}}' }, { key: 'case_number', label: 'Case Number', type: 'text', placeholder: 'e.g., 06617596', hml_field: '{{{Case.CaseNumber}}}' }, ], subject: { variants: [ 'Update: Account Unblocked - Case #{{{Case.CaseNumber}}}', 'Action Complete: Negative File Removed - Case #{{{Case.CaseNumber}}}' ] }, body: [ { block: 'Greeting', variants: [ '<p>Hello {{{Case.Contact.Name}}},</p>', '<p>Hi {{{Case.Contact.Name}}},</p>' ] }, { block: 'Confirmation', variants: [ '<p>Great news! This is a follow-up to let you know that the requested account has been successfully removed from the Negative File.</p>', '<p>I\'m happy to inform you that the block on the account for case #{{{Case.CaseNumber}}} has been removed.</p>' ] }, { block: 'Next Step', variants: [ '<p>The customer can now proceed with making a payment. Please advise them to wait <strong>24 hours</strong> before attempting the payment to ensure the system is fully updated.</p>', ] }, { block: 'Closing', variants: [ '<p>If you have any further questions, please let me know.</p>' ] }, { block: 'Signature', variants: [ '<hr><div class="signature-placeholder"><i class="fa-solid fa-paste"></i>&nbsp; Paste formatted signature here</div>' ] } ], caseComment: { variants: [ 'Confirmed with biller that negative file block was removed. Advised of 24hr wait period before customer payment.', 'Emailed biller to notify that account has been unblocked. Advised 24hr wait time.' ] } } ];
+
+        // ==========================================================================
+        // js/state.js
+        // ==========================================================================
+        window.App.state = { quill: null, selectedTemplateId: null, fieldValues: {}, userName: 'Guest', theme: 'light', currentAssembly: null, };
+        App.loadState = function() { const savedName = localStorage.getItem('emailGenProUser'); if (savedName) App.state.userName = savedName; const savedTheme = localStorage.getItem('emailGenProTheme'); if (savedTheme) App.state.theme = savedTheme; };
+        App.saveState = function() { localStorage.setItem('emailGenProUser', App.state.userName); localStorage.setItem('emailGenProTheme', App.state.theme); };
+        App.loadSessionData = function() { const savedData = sessionStorage.getItem('emailGenProSession'); if (savedData) { App.state.fieldValues = JSON.parse(savedData); } };
+        App.saveSessionData = function() { App.state.fieldValues.selectedTemplateId = App.state.selectedTemplateId; sessionStorage.setItem('emailGenProSession', JSON.stringify(App.state.fieldValues)); };
+        App.exportSession = function() { const dataStr = JSON.stringify(App.state.fieldValues, null, 2); const blob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); const date = new Date().toISOString().slice(0, 10); a.href = url; a.download = `email-gen-session-${date}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); };
+        App.importSession = function() { const input = document.createElement('input'); input.type = 'file'; input.accept = '.json,application/json'; input.onchange = e => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = event => { try { const importedData = JSON.parse(event.target.result); App.state.fieldValues = importedData; App.saveSessionData(); window.location.reload(); } catch (err) { console.error('Failed to parse JSON file:', err); alert('Error: Could not import session. The file may be corrupt.'); } }; reader.readAsText(file); }; input.click(); };
+
+        // ==========================================================================
+        // js/ui.js
+        // ==========================================================================
+        (function(App) {
+            'use strict';
+            const dom = { body: document.body, greetingText: document.getElementById('user-name'), editNameBtn: document.getElementById('edit-name-btn'), themeToggleBtn: document.getElementById('theme-toggle-btn'), templateSelect: document.getElementById('template-select'), dynamicFieldsContainer: document.getElementById('dynamic-fields-container'), outputTo: document.getElementById('output-to'), outputSubject: document.getElementById('output-subject'), outputCaseComment: document.getElementById('output-case-comment'), };
+            function buildHmlKeyMap(currentTemplate) { const allFields = [...(currentTemplate.fields || []), { key: 'agent_name', hml_field: '{{{Case.Owner.Name}}}' }]; const map = new Map(); allFields.forEach(field => { if (!field.hml_field) return; const normalized = field.hml_field.replace(/[{}]/g, '').trim(); map.set(normalized, field.key); }); return map; }
+            function wrapHmlWithSpans(html, hmlToKey) { return html.replace(/{{{([\s\w.]+)}}}/g, (match, hmlPath) => { const key = hmlToKey.get(hmlPath.trim()); if (!key) return match; const cls = `highlight highlight-${key}`; return `<span class="${cls}" data-key="${key}" data-hml="${match}" contenteditable="false">${match}</span>`; }); }
+            function replaceHmlInText(text, hmlToKey) { return text.replace(/{{{([\s\w.]+)}}}/g, (match, hmlPath) => { const key = hmlToKey.get(hmlPath.trim()); if (!key) return match; const value = (App.state.fieldValues[key] || '').trim(); return value !== '' ? value : match; }); }
+            App.assembleDynamicContent = function(template) { if (!template) return null; const getRandomVariant = (variants) => (Array.isArray(variants) && variants.length > 0) ? variants[Math.floor(Math.random() * variants.length)] : ''; const subject = getRandomVariant(template.subject?.variants); const caseComment = getRandomVariant(template.caseComment?.variants); const body = (Array.isArray(template.body) ? template.body : []).map(block => getRandomVariant(block?.variants)).join(''); return { subject, body, caseComment }; };
+            App.renderQuillBody = function() { const assembly = App.state.currentAssembly; if (!assembly || !App.state.quill) { if (App.state.quill) App.state.quill.setText(''); return; } const template = App.templates.find(c => c.id === App.state.selectedTemplateId); if (!template) return; const hmlToKey = buildHmlKeyMap(template); const wrappedBody = wrapHmlWithSpans(assembly.body, hmlToKey); App.state.quill.clipboard.dangerouslyPasteHTML(wrappedBody); };
+            App.updateAllPlaceholders = function() { if (!App.state.currentAssembly) return; const template = App.templates.find(c => c.id === App.state.selectedTemplateId); if (!template) return; const hmlToKey = buildHmlKeyMap(template); const { subject, caseComment } = App.state.currentAssembly; dom.outputSubject.value = replaceHmlInText(subject, hmlToKey); dom.outputCaseComment.value = replaceHmlInText(caseComment, hmlToKey); if (App.state.quill) { const root = App.state.quill.root; root.querySelectorAll('.highlight[data-key]').forEach(span => { const key = span.getAttribute('data-key'); const hml = span.getAttribute('data-hml'); const value = (App.state.fieldValues[key] || '').trim(); const newContent = value !== '' ? value : hml; if (span.textContent !== newContent) { span.textContent = newContent; } }); } dom.outputTo.value = App.state.fieldValues['recipient_email'] || ''; };
+            App.renderStaticOutputs = function() { if (!App.state.currentAssembly) { dom.outputSubject.value = ''; dom.outputCaseComment.value = ''; return; } App.updateAllPlaceholders(); };
+            App.renderAllOutputs = function() { App.state.fieldValues['agent_name'] = App.state.userName; App.renderQuillBody(); App.updateAllPlaceholders(); };
+            App.populateTemplates = function(templates) { dom.templateSelect.innerHTML = '<option value="" disabled selected>Choose a template...</option>'; const categoryMap = {}; templates.forEach(t => { const category = t.category || 'General'; if (!categoryMap[category]) categoryMap[category] = []; categoryMap[category].push(t); }); Object.keys(categoryMap).sort().forEach(categoryName => { const optgroup = document.createElement('optgroup'); optgroup.label = categoryName; categoryMap[categoryName].forEach(template => { const option = document.createElement('option'); option.value = template.id; option.textContent = template.name; optgroup.appendChild(option); }); dom.templateSelect.appendChild(optgroup); }); };
+            App.renderDynamicFields = function(template) { dom.dynamicFieldsContainer.innerHTML = ''; if (!template || !template.fields) return; const group = document.createElement('div'); group.className = 'control-group field-group animate-fade-in-up'; template.fields.forEach(field => { if (field.hml_field === '{{{Case.Owner.Name}}}') return; const fieldHtml = `<label for="field-${field.key}">${field.label}</label><input type="${field.type}" id="field-${field.key}" name="${field.key}" placeholder="${field.placeholder || ''}" value="${App.state.fieldValues[field.key] || ''}" data-tippy-content="Salesforce Field: ${field.hml_field || 'N/A'}">`; group.innerHTML += fieldHtml; }); dom.dynamicFieldsContainer.appendChild(group); if (window.tippy) { tippy(dom.dynamicFieldsContainer.querySelectorAll('[data-tippy-content]')); } };
+            App.updateUserName = function(name) { dom.greetingText.textContent = name || 'Guest'; };
+            App.toggleNameEdit = function(isEditing) { dom.greetingText.setAttribute('contenteditable', isEditing); const icon = dom.editNameBtn.querySelector('i'); icon.className = isEditing ? 'fa-solid fa-check' : 'fa-solid fa-pencil'; if (isEditing) { dom.greetingText.focus(); document.execCommand('selectAll', false, null); } };
+            App.applyTheme = function(theme) { dom.body.classList.toggle('dark-mode', theme === 'dark'); const icon = dom.themeToggleBtn.querySelector('i'); icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon'; };
+        })(window.App);
+        
+        // ==========================================================================
+        // js/events.js
+        // ==========================================================================
+        (function(App) {
+            'use strict';
+            let isNameEditing = false; let templates = [];
+            function handleTemplateChange(e) { App.state.selectedTemplateId = e.target.value; const preservedValues = { recipient_email: App.state.fieldValues.recipient_email, }; App.state.fieldValues = preservedValues; const template = templates.find(c => c.id === App.state.selectedTemplateId); if (template) { App.state.currentAssembly = App.assembleDynamicContent(template); App.renderDynamicFields(template); App.renderAllOutputs(); } else { App.state.currentAssembly = null; App.renderDynamicFields(null); App.renderAllOutputs(); } App.saveSessionData(); }
+            function handleInput(e) { if (e.target.name) { App.state.fieldValues[e.target.name] = e.target.value; App.updateAllPlaceholders(); App.saveSessionData(); } }
+            async function handleCopyClick(e) { const button = e.target.closest('.copy-btn'); if (!button) return; const targetId = button.dataset.target; let success = false; try { if (targetId === 'output-body-editor') { const htmlContent = App.state.quill.root.innerHTML; try { const blob = new Blob([htmlContent], { type: 'text/html' }); await navigator.clipboard.write([new ClipboardItem({ 'text/html': blob })]); success = true; } catch (err) { console.warn('Rich text copy failed, falling back to plain text.', err); const textContent = App.state.quill.root.textContent; await navigator.clipboard.writeText(textContent); success = true; } } else { const targetElement = document.getElementById(targetId); if (targetElement && targetElement.value) { await navigator.clipboard.writeText(targetElement.value); success = true; } } if (success && window.tippy) { const instance = tippy(button, { content: 'Copied!', trigger: 'manual', theme: 'success', onHidden: (inst) => inst.destroy(), }); instance.show(); setTimeout(() => instance.hide(), 1500); } } catch (err) { console.error('Failed to copy content:', err); } }
+            function handleNameEdit() { isNameEditing = !isNameEditing; App.toggleNameEdit(isNameEditing); if (!isNameEditing) { const newName = document.getElementById('user-name').textContent.trim(); App.state.userName = newName || 'Guest'; App.updateUserName(App.state.userName); App.state.fieldValues['agent_name'] = App.state.userName; App.saveState(); App.updateAllPlaceholders(); } }
+            function handleThemeToggle() { App.state.theme = App.state.theme === 'light' ? 'dark' : 'light'; App.applyTheme(App.state.theme); App.saveState(); }
+            App.setupEventListeners = function(templateData) { templates = templateData; const controlsPanel = document.getElementById('controls-panel'); const editorPanel = document.getElementById('editor-panel'); const contextPanel = document.getElementById('context-panel'); const shuffleBtn = document.getElementById('shuffle-btn'); const templateSelect = document.getElementById('template-select'); const editNameBtn = document.getElementById('edit-name-btn'); const themeToggleBtn = document.getElementById('theme-toggle-btn'); const userNameSpan = document.getElementById('user-name'); const exportBtn = document.getElementById('export-btn'); const importBtn = document.getElementById('import-btn'); const searchInput = document.getElementById('template-search'); templateSelect.addEventListener('change', handleTemplateChange); controlsPanel.addEventListener('input', handleInput); editorPanel.addEventListener('click', handleCopyClick); contextPanel.addEventListener('click', handleCopyClick); editNameBtn.addEventListener('click', handleNameEdit); themeToggleBtn.addEventListener('click', handleThemeToggle); shuffleBtn.addEventListener('click', () => { const template = templates.find(c => c.id === App.state.selectedTemplateId); if (template) { App.state.currentAssembly = App.assembleDynamicContent(template); App.renderAllOutputs(); } }); userNameSpan.addEventListener('blur', () => { if (isNameEditing) handleNameEdit(); }); userNameSpan.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleNameEdit(); }}); exportBtn.addEventListener('click', App.exportSession); importBtn.addEventListener('click', App.importSession); searchInput.addEventListener('input', (e) => { const searchTerm = e.target.value.toLowerCase(); for (const optgroup of templateSelect.querySelectorAll('optgroup')) { let hasVisibleOptions = false; for (const option of optgroup.querySelectorAll('option')) { const matches = option.textContent.toLowerCase().includes(searchTerm); option.style.display = matches ? '' : 'none'; if (matches) hasVisibleOptions = true; } optgroup.style.display = hasVisibleOptions ? '' : 'none'; } }); };
+        })(window.App);
+
+        // ==========================================================================
+        // js/main.js
+        // ==========================================================================
+        (function(App) {
+            'use strict';
+            function init() {
+                App.templates = [].concat(...Object.values(App.templateCategories || {}));
+                App.loadState(); App.loadSessionData();
+                App.state.quill = new Quill('#output-body-editor', { theme: 'snow', modules: { toolbar: [['bold', 'italic', 'underline'], [{'list': 'ordered'}, {'list': 'bullet'}], ['link', 'clean']] }, placeholder: 'Generated email body will appear here...' });
+                if (window.tippy) { tippy('[data-tippy-content]'); }
+                App.applyTheme(App.state.theme); App.populateTemplates(App.templates); App.updateUserName(App.state.userName);
+                document.getElementById('recipient-email').value = App.state.fieldValues.recipient_email || '';
+                if (App.state.fieldValues.selectedTemplateId) {
+                    App.state.selectedTemplateId = App.state.fieldValues.selectedTemplateId;
+                    const selectElement = document.getElementById('template-select');
+                    if (selectElement) { selectElement.value = App.state.selectedTemplateId; }
+                    const template = App.templates.find(c => c.id === App.state.selectedTemplateId);
+                    if (template) { App.state.currentAssembly = App.assembleDynamicContent(template); App.renderDynamicFields(template); App.renderAllOutputs(); }
+                }
+                App.setupEventListeners(App.templates);
+                document.getElementById('context-panel').classList.add('stagger-children');
+            }
+            document.addEventListener('DOMContentLoaded', init);
+        })(window.App);
+    </script>
+
+</body>
+</html>

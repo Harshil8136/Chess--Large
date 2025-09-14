@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Email Generator Pro</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+    <div id="app-container">
+        <header class="app-header">
+            <h1 class="app-title">Email Generator <strong>Pro</strong></h1>
+            <div class="header-actions">
+                <div class="user-greeting" id="user-greeting">
+                    <span class="greeting-text">Hi, <span id="user-name" contenteditable="false" data-tippy-content="Click to edit your name">Guest</span>!</span>
+                    <button id="edit-name-btn" class="icon-btn" data-tippy-content="Edit Name" aria-label="Edit agent name">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                </div>
+                <button id="theme-toggle-btn" class="icon-btn" data-tippy-content="Toggle Theme" aria-label="Toggle dark or light theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <aside id="controls-panel" class="panel">
+            <section class="control-group">
+                <label for="recipient-email">Recipient Email</label>
+                <input type="email" id="recipient-email" name="recipient_email" placeholder="e.g., customer@example.com">
+            </section>
+            
+            <section class="control-group">
+                <label for="template-select">Select a Template</label>
+                <input type="search" id="template-search" placeholder="Search templates..." aria-label="Search for an email template">
+                <div class="select-wrapper">
+                    <select id="template-select">
+                        <option value="" disabled selected>Choose a template...</option>
+                    </select>
+                </div>
+            </section>
+
+            <div id="dynamic-fields-container">
+                </div>
+
+            <section class="control-group actions-group">
+                 <button id="shuffle-btn" class="shuffle-btn" data-tippy-content="Generate a new variation of the selected template">
+                    <i class="fa-solid fa-shuffle"></i>
+                    Shuffle Variation
+                </button>
+                <div class="button-row">
+                    <button id="export-btn" class="secondary-btn" data-tippy-content="Save all current field values to a file">
+                        <i class="fa-solid fa-file-export"></i> Export Session
+                    </button>
+                    <button id="import-btn" class="secondary-btn" data-tippy-content="Load field values from a file">
+                        <i class="fa-solid fa-file-import"></i> Import Session
+                    </button>
+                </div>
+            </section>
+        </aside>
+
+        <main id="editor-panel" class="panel">
+            <div class="output-card card-stretch">
+                 <div class="card-header">
+                    <label for="output-body-editor">Email Body:</label>
+                    <button class="copy-btn" data-target="output-body-editor" data-shortcut="Alt+1" aria-label="Copy email body (Alt + 1)" data-tippy-content="Copy formatted email body">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div id="output-body-editor" class="editor-container">
+                </div>
+            </div>
+        </main>
+
+        <aside id="context-panel" class="panel">
+            <div class="output-card">
+                <div class="card-header">
+                    <label id="label-to" for="output-to">To:</label>
+                    <button class="copy-btn" data-target="output-to" aria-label="Copy recipient email" data-tippy-content="Copy recipient email">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                </div>
+                <input type="text" id="output-to" readonly placeholder="Recipient email...">
+            </div>
+
+            <div class="output-card">
+                <div class="card-header">
+                    <label id="label-subject" for="output-subject">Subject:</label>
+                    <button class="copy-btn" data-target="output-subject" data-shortcut="Alt+2" aria-label="Copy subject line (Alt + 2)" data-tippy-content="Copy subject line">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                </div>
+                <input type="text" id="output-subject" readonly placeholder="Generated subject line..." aria-live="polite">
+            </div>
+            
+            <div class="output-card">
+                <div class="card-header">
+                    <label id="label-case-comment" for="output-case-comment">Internal Case Comment:</label>
+                    <button class="copy-btn" data-target="output-case-comment" data-shortcut="Alt+3" aria-label="Copy case comment (Alt + 3)" data-tippy-content="Copy case comment">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                </div>
+                <textarea id="output-case-comment" readonly rows="8" placeholder="Generated case comment for internal notes..." aria-live="polite"></textarea>
+            </div>
+        </aside>
+    </div>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+
+    <script src="js/all-templates.js" defer></script>
+    
+    <script src="js/state.js" defer></script>
+    <script src="js/ui.js" defer></script>
+    <script src="js/events.js" defer></script>
+    <script src="js/main.js" defer></script>
+
+</body>
+</html>

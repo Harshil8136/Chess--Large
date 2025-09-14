@@ -1,0 +1,79 @@
+/* ==========================================================================
+   DESIGN SYSTEM (VARIABLES)
+   ========================================================================== */
+
+:root {
+    /* Typography */
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+    /* Spacing & Sizing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+
+    /* Borders & Radii */
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --border-width: 1px;
+
+    /* Transitions */
+    --transition-speed: 200ms;
+
+    /* Shadows (Subtle & Layered) */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-focus-ring: 0 0 0 3px;
+
+    /* ================================= */
+    /* Light Theme (Default)             */
+    /* ================================= */
+    --bg-main: #f3f4f6;
+    --bg-panel: #ffffff;
+    --bg-input: #ffffff;
+    --bg-hover: #f9fafb;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-placeholder: #9ca3af;
+    --text-on-accent: #ffffff;
+    --border-default: #d1d5db;
+    --border-subtle: #e5e7eb;
+    --accent-primary: #2563eb;
+    --accent-primary-hover: #1d4ed8;
+    --accent-success: #16a34a;
+    --accent-focus-ring: rgba(59, 130, 246, 0.4);
+
+    /* ================================= */
+    /* Entity & Highlight Colors         */
+    /* ================================= */
+    --color-case-number: #cfd4ff;     /* pale lavender blue */
+    --color-customer-name: #89e3d9;   /* soft mint teal */
+    --color-account-number: #ffc46b;  /* warm peachy orange */
+    --color-biller-name: #ff82b2;     /* bright candy pink */
+    --color-phone: #7359a6;           /* muted purple */
+    --color-confirmation: #3a9bdc;    /* clear sky blue */
+    --color-date: #f8a1f0;            /* pastel pink */
+    --color-amount: #4eccc4;          /* aqua teal */
+    --color-generic: #a45fdc;         /* lavender purple */
+}
+
+
+/* ================================= */
+/* Dark Theme                        */
+/* ================================= */
+body.dark-mode {
+    --bg-main: #111827;
+    --bg-panel: #1f2937;
+    --bg-input: #374151;
+    --bg-hover: #374151;
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --text-placeholder: #6b7280;
+    --border-default: #4b5563;
+    --border-subtle: #374151;
+    --accent-primary: #3b82f6;
+    --accent-primary-hover: #60a5fa;
+    --accent-success: #22c55e;
+    --accent-focus-ring: rgba(96, 165, 250, 0.5);
+}
